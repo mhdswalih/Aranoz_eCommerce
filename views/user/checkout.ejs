@@ -1,0 +1,293 @@
+<style>
+  .btna{
+    display: flex;
+    margin-left: 80%;
+    
+  }
+  .btn_3{
+    margin-left: 20%;
+    /* Modal background */
+  }
+
+</style>
+  <!-- Header part end-->
+  <%-include('../layout/usernav')%>
+  <!--================Home Banner Area =================-->
+  <!-- breadcrumb start-->
+  <section class="breadcrumb breadcrumb_bg">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="breadcrumb_iner">
+            <div class="breadcrumb_iner_item">
+              <h2>Product Checkout</h2>
+              <p>Home <span>-</span> Shop Single</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- breadcrumb start-->
+
+  <!--================Checkout Area =================-->
+  <section class="checkout_area padding_top">
+    <div class="container">
+      <div class="returning_customer">
+      <div class="cupon_area">
+        <div class="check_title">
+          <h2>
+            Have a coupon?
+            <a href="#">Click here to enter your code</a>
+          </h2>
+        </div>
+        <input type="text" placeholder="Enter coupon code" />
+        <a class="tp_btn" href="#">Apply Coupon</a>
+      </div>
+      <form action="" id="Order_details">
+      <div class="billing_details">
+        <div class="row">
+          <div class="col-lg-8">
+            <h3>Billing Details</h3>
+            <form class="row contact_form" id="addAddressForm" action="" novalidate="novalidate">
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newName" name="newName" placeholder="Enter Your Name" />
+              </div>
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newPhoneNumber" name="newPhoneNumber" placeholder="Enter Your Phone" />
+              </div>
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newAddressLine1" name="newAddressLine1" placeholder="Enter Your Address" />
+              </div>
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newAddressLine2" name="newAddressLine2" placeholder="Enter Your Landmark" />
+              </div>
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newState" name="newState" placeholder="Enter Your State" />
+              </div>
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newCity" name="newCity" placeholder="Enter Your City" />
+              </div>
+              <div class="col-md-12 form-group">
+                <input type="text" class="form-control" id="newZipCode" name="newZipCode" placeholder="Postcode/ZIP" />
+              </div>
+              <div class="col-md-12 form-group">
+                <div class="creat_account">
+                  <!-- <input type="checkbox" id="f-option2" name="selector" />
+                  <label for="f-option2">Create an account?</label> -->
+                </div>
+              </div>
+              <div>
+                <span id="Error" style="color: red; margin-top: 10px"></span>
+              </div>
+              <div class="col-md-12 form-group text-center">
+                <button type="button" class="btn genric-btn primary small btna"  id="saveAddressAdd">Add Address</button>
+              </div>
+              <div class="col-md-12 form-group">
+                <div class="creat_account">
+                  <h3>Shipping Details</h3>
+                  <input type="checkbox" id="f-option3" name="selector" />
+                  <label for="f-option3">Ship to a different address?</label>
+                </div>
+                <form class="row contact_form" action="/place-order" method="POST">
+                  <div class="col-md-12 form-group">
+                    <div class="section-top-border">
+                      <div class="row">
+                        <div class="col-lg-8 col-md-8" id="address-container">
+                          <h3 class="mb-30"> Choose Address</h3>
+                         
+                          <div class="card mb-3">
+                            <div class="card-body">
+                              <div class="d-flex justify-content-between align-items-center">
+                                <div id="selectedAddress" style="flex-grow: 1;"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <button type="button" class="btn btn genric-btn primary small" data-toggle="modal" data-target="#staticBackdrop" style="position: absolute; top: 10px; right: 10px;">
+                            View Address 
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </form>
+            <div id="Error" style="color: red;"></div>
+          </div>
+          <div class="col-lg-4">
+            <div class="order_box">
+              <h2>Your Order</h2>
+              <ul class="list">
+                <li>
+                  <a href="#">Product<span>Total</span></a>
+                </li>
+                <% cart.products.forEach(product => { %>
+                  <li>
+                    <a href="#"><%= product.productId.productname %>
+                      <span class="middle">x <%= product.productquantity %></span>
+                      <span class="last">$<%= product.productId.price * product.productquantity %></span>
+                    </a>
+                  </li>
+                <% }) %>
+              </ul>
+              <ul class="list list_2">
+                <li><a href="#">Subtotal<span>$<%= cart.products.reduce((sum, product) => sum + product.productId.price * product.productquantity, 0) %></span></a></li>
+                <li><a href="#">Shipping<span>Flat rate: $50.00</span></a></li>
+                <li><a href="#">Total<span>$<%= cart.products.reduce((sum, product) => sum + product.productId.price * product.productquantity, 0) + 50 %></span></a></li>
+              </ul>
+              
+          
+              <!-- Payment Methods -->
+              <div class="payment_item">
+                <!-- <div class="radion_btn">
+                  <input type="radio" id="check-option" name="paymentMethod" value="check" />
+                  <label for="check-option">Check payments</label>
+                  <div class="check"></div>
+                </div> -->
+                
+                <!-- This is where the selected address will be displayed -->
+                <!-- <div id="selectedAddress" style="background-color: #fff; border: 1px solid #ccc; padding: 10px; margin-top: 10px; border-radius: 4px;"> -->
+                  <!-- Selected address details will be populated here via JavaScript -->
+                <!-- </div> -->
+              <!-- </div> -->
+              
+              <div class="payment_item">
+                <div class="radion_btn">
+                  <input type="radio" id="paypal-option" name="paymentMethod" value="paypal" />
+                  <label for="paypal-option">PayPal</label>
+                  <img src="img/product/single-product/card.jpg" alt="Paypal" />
+                  <div class="check"></div>
+                </div>
+                <p>Secure payment through PayPal.</p>
+              </div>
+              
+              <div class="payment_item">
+                <div class="radion_btn">
+                  <input type="radio" id="cod-option" name="paymentMethod" value="cod" />
+                  <label for="cod-option">Cash On Delivery</label>
+                  <img src="img/product/single-product/card.jpg" alt="Cash On Delivery" />
+                  <div class="check"></div>
+                </div>
+                <p>Pay with cash upon delivery.</p>
+              </div>
+          
+              <!-- Terms and Conditions -->
+              <div class="creat_account">
+                <input type="checkbox" id="terms-conditions" name="termsAndConditions" />
+                <label for="terms-conditions">I’ve read and accept the </label><a href="#">terms & conditions*</a>
+              </div>
+              
+              <!-- Submit Button -->
+              <button id="order" type="submit" data-address-id="<>" class="btn_3">Proceed to Pay</button>
+            </div>
+          </div>
+        </form>
+          
+  <!--================End Checkout Area =================-->
+
+ 
+      <!-- Success Modal -->
+      <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body" style="color: rgb(59, 255, 59)">
+            <div class="modal-body">
+              Address added successfully!
+            </div>
+          </div>
+        </div>
+      </div>
+      
+ 
+  <!--::footer_part end::-->
+  <!-- Modal HTML -->
+<div id="orderPlacedModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Order Placed</h2>
+    <p>Your order has been successfully placed!</p>
+    <button id="okButton">OK</button>
+  </div>
+</div>
+
+<!-- Address Modal -->
+<div class="modal fade" id="addAddress"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <% if (addr && addr.length > 0) { %> 
+          <% addr.forEach(function(addressDoc, index) { %>
+            <div class="card mb-3">
+              <div class="card-body">
+                <input type="radio" name="selectedAddress" value="<%= addressDoc._id %>" data-address="<%= addressDoc.name %>, <%= addressDoc.phone %>, <%= addressDoc.addressLine1 %>, <%= addressDoc.addressLine2 %>, <%= addressDoc.city %>, <%= addressDoc.state %>, <%= addressDoc.zipcode %>" <%= index === 0 ? 'checked' : '' %> />
+                <label for="address<%= index %>">
+                  <div style="background-color: #fff; border: none;" class="form-control" rows="4" readonly>
+                    Name: <%= addressDoc.name %> <br>
+                    Phone: <%= addressDoc.phone %><br>
+                    Address 1: <%= addressDoc.addressLine1 %><br>
+                    Address 2: <%= addressDoc.addressLine2 %><br>
+                    City: <%= addressDoc.city %><br>
+                    State: <%= addressDoc.state %><br>
+                    Zip Code: <%= addressDoc.zipcode %><br>
+                  </div>
+                </label>
+              </div>
+            </div>
+          <% }); %> 
+        <% } else { %>
+          <p>No addresses found.</p>
+        <% } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn genric-btn primary-border small" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- jquery plugins here-->
+  <!-- jquery -->
+   <script src="/script/user/AddAddress.js"></script>
+  <script src="js/jquery-1.12.1.min.js"></script>
+  <!-- popper js -->
+  <script src="js/popper.min.js"></script>
+  <!-- bootstrap js -->
+  <script src="js/bootstrap.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> -->
+  <!-- easing js -->
+  <script src="js/jquery.magnific-popup.js"></script>
+  <!-- swiper js -->
+  <script src="js/swiper.min.js"></script>
+  <!-- swiper js -->
+  <script src="js/masonry.pkgd.js"></script>
+  <!-- particles js -->
+  <script src="js/owl.carousel.min.js"></script>
+  <script src="js/jquery.nice-select.min.js"></script>
+  <!-- slick js -->
+  <script src="js/slick.min.js"></script>
+  <script src="js/jquery.counterup.min.js"></script>
+  <script src="js/waypoints.min.js"></script>
+  <script src="js/contact.js"></script>
+  <script src="js/jquery.ajaxchimp.min.js"></script>
+  <script src="js/jquery.form.js"></script>
+  <script src="js/jquery.validate.min.js"></script>
+  <script src="js/mail-script.js"></script>
+  <script src="js/stellar.js"></script>
+  <script src="js/price_rangs.js"></script>
+  <!-- custom js -->
+  <script src="js/custom.js"></script>
+  <script>
+
+  </script>
+  <script src="/script/user/order.js"></script>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> -->
+
+</body>
+
+</html>

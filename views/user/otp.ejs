@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="/css/otp.css">
+</head>
+<body onload="loadPage()">
+    <form action="#"  id="otp-form">
+        <div class="container">
+            <div class="form-box">
+                <h1>Aranoz.</h1>
+                <span class="text-danger d-block mb-4">Please enter your OTP sent to <%= email %></span>
+                <span style="display: none;" id="user-email"><%= email %></span>
+                <div class="otp-inputs">
+                    <label for="otp" class="form-label text-danger">
+                        <% if (locals.message) { %>
+                            <%= message %>
+                        <% } %>
+                    </label>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                </div>
+                <div>
+                    <small id="submitError" style="color: red;" class="text-danger"></small>
+                </div>
+                <button type="submit" class="verify-button">Verify</button>
+            </form>
+                <div class="resend">
+                    <a type="submit" id="resend-otp"  class="resend">Resend OTP</a>
+                </div>
+                <div class="mb-3" id="timerSection" style="display: none;">
+                    <span id="timer"></span> seconds remaining
+                </div>
+            </div>
+        </div>
+    
+    <script src="/script/user/otp.js"></script>
+</body>
+</html>
