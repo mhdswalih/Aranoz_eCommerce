@@ -32,7 +32,7 @@
    <!--::header part start::-->
  <%-include('../layout/usernav')%>
     <!-- Header part end-->
-
+<div id="snackbar"></div>
   <!-- breadcrumb start-->
   <section class="breadcrumb breadcrumb_bg">
     <div class="container">
@@ -55,77 +55,67 @@
   
   <div id="imagezoom" class="product_image_area section_padding">
     <div class="container">
-          <div class="row s_product_inner justify-content-between">
+        <div class="row s_product_inner justify-content-between">
             <div class="col-lg-7 col-xl-7">
-              <div class="product_slider_img">
-                <div id="vertical">
-                  <div data-thumb="/products/<%= singleproduct.image1 %>">
-                    <img src="/products/<%= singleproduct.image1 %>" alt="Product Image 1">
-                  </div>
-                  <div data-thumb="/products/<%= singleproduct.image1 %>">
-                    <img src="/products/<%= singleproduct.image1 %>" alt="Product Image 1">
-                  </div>
-                  <div data-thumb="/products/<%= singleproduct.image2 %>">
-                    <img src="/products/<%= singleproduct.image2 %>" alt="Product Image 2">
-                  </div>
-                  <div data-thumb="/products/<%= singleproduct.image3 %>">
-                    <img src="/products/<%= singleproduct.image3 %>" alt="Product Image 3">
-                  </div>
+                <div class="product_slider_img">
+                    <div id="vertical">
+                        <div data-thumb="/products/<%= singleproduct.image1 %>" class="wrap-pic-w">
+                            <img src="/products/<%= singleproduct.image1 %>"  style="max-width: 100%; height: 100%;" alt="Product Image 1">
+                        </div>
+                        <div data-thumb="/products/<%= singleproduct.image2 %>" class="wrap-pic-w">
+                            <img src="/products/<%= singleproduct.image2 %>" style="max-width: 100%; height: 100%;" alt="Product Image 2">
+                        </div>
+                        <div data-thumb="/products/<%= singleproduct.image3 %>" class="wrap-pic-w">
+                            <img src="/products/<%= singleproduct.image3 %>" style="max-width: 100%; height: 100%;" alt="Product Image 3">
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>            
             <div class="col-lg-5 col-xl-4">
-              <div class="s_product_text">
-                <h5>previous<span>|</span> next</h5>
-                <h3><%= singleproduct.productname %></h3>
-                <h2>₹<%= singleproduct.productprice %></h2>
-                <ul class="list">
-                  <li>
-                    <a class="active" >
-                      <span>Category</span> : <%=singleproduct.category.name%>
-                    </a>
-                  </li>
-                  <li>
-                    <a > <span>Availability <%if(singleproduct.productquantity>0){%></span> <span  style="color: rgb(116, 255, 116);">In stock</span></a><%}else{%>
-                      <span style="color: red; ;">No stock</span>
-                      <%}%>
-                  </li>
-                </ul>
-                <p>
-                  First replenish living. Creepeth image image. Creeping can't, won't called.
-                  Two fruitful let days signs sea together all land fly subdue
-                </p>
-                <div class="card_area d-flex justify-content-between align-items-center">
-                  <div class="product_count">
-                    <span class="inumber-decrement"> <i class="ti-minus"></i></span>
-                    <input class="input-number" type="text" value="1" min="0" max="10">
-                    <span class="number-increment"> <i class="ti-plus"></i></span>
-                  </div>
-                  <a href="/cart" class="btn_3">add to cart</a>
-                  <a href="" class="like_us"> <i class="ti-heart"></i> </a>
+                <div class="s_product_text">
+                    <h5>previous<span>|</span> next</h5>
+                    <h3><%= singleproduct.productname %></h3>
+                    <h2>₹<%= singleproduct.productprice %></h2>
+                    <ul class="list">
+                        <li>
+                            <a class="active">
+                                <span>Category</span> : <%= singleproduct.category.name %>
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                <span>Availability</span>
+                                <% if (singleproduct.productquantity > 0) { %>
+                                    <span style="color: rgb(116, 255, 116);">In stock</span>
+                                <% } else { %>
+                                    <span style="color: red;">No stock</span>
+                                <% } %>
+                            </a>
+                        </li>
+                    </ul>
+                    <p>
+                        First replenish living. Creepeth image image. Creeping can't, won't called.
+                        Two fruitful let days signs sea together all land fly subdue.
+                    </p>
+                    <div class="card_area d-flex justify-content-between align-items-center">
+                        <div class="product_count"></div>
+                        <a id="add_cart" class="btn_3" data-product-id="<%= singleproduct._id %>" 
+                          data-product-name="<%= singleproduct.productname %>" 
+                          data-product-price="<%= singleproduct.productprice %>" 
+                          onclick="addToCart('<%=singleproduct._id%>')">add to cart</a>
+                       
+                       <a class="like_us wish-button" id="add_Wish" data-product-id="<%= singleproduct._id %>" 
+                          data-product-name="<%= singleproduct.productname %>" 
+                          data-product-price="<%= singleproduct.productprice %>" 
+                          onclick="addToWish('<%=singleproduct._id%>')"><i class="ti-heart"></i></a>
+                       
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
+        </div>
     </div>
-  </div>
-  <!-- <script>
-    document.querySelectorAll('.product_slider_img').forEach(imgWrapper => {
-  imgWrapper.addEventListener('mousemove', function(e) {
-    const img = imgWrapper.querySelector('img');
-    const rect = imgWrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    img.style.transformOrigin = `${x}px ${y}px`;
-  });
+</div>
 
-  imgWrapper.addEventListener('mouseleave', function() {
-    const img = imgWrapper.querySelector('img');
-    img.style.transformOrigin = 'center center';
-  });
-});
-
-  </script> -->
   
   <!--================End Single Product Area =================-->
 
@@ -335,63 +325,57 @@
         </div>
         <div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
           <div class="row">
-            <div class="col-lg-6">
-              <div class="row total_rate">
-                <div class="col-6">
-                  <div class="box_total">
-                    <h5>Overall</h5>
-                    <h4>4.0</h4>
-                    <h6>(03 Reviews)</h6>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="rating_list">
-                    <h3>Based on 3 Reviews</h3>
-                    <ul class="list">
-                      <li>
-                        <a href="#">5 Star
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i> 01</a>
-                      </li>
-                      <li>
-                        <a href="#">4 Star
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i> 01</a>
-                      </li>
-                      <li>
-                        <a href="#">3 Star
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i> 01</a>
-                      </li>
-                      <li>
-                        <a href="#">2 Star
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i> 01</a>
-                      </li>
-                      <li>
-                        <a href="#">1 Star
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i>
-                          <i class="fa fa-star"></i> 01</a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+              <div class="col-lg-6">
+                  <div class="row total_rate">
+                      <div class="col-6">
+                          <div class="box_total">
+                              <h5>Overall</h5>
+                              <h4><%= overallRating %></h4>
+                              <h6>(<%= totalReviews %> Reviews)</h6>
+                          </div>
+                      </div>
+                      <div class="col-6">
+                          <div class="rating_list">
+                              <h3>Based on <%= totalReviews %> Reviews</h3>
+                              <ul class="list">
+                                  <li>
+                                      <a href="#">5 Star
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i> <%= starCount[5] %></a>
+                                  </li>
+                                  <li>
+                                      <a href="#">4 Star
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i> <%= starCount[4] %></a>
+                                  </li>
+                                  <li>
+                                      <a href="#">3 Star
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i> <%= starCount[3] %></a>
+                                  </li>
+                                  <li>
+                                      <a href="#">2 Star
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i> <%= starCount[2] %></a>
+                                  </li>
+                                  <li>
+                                      <a href="#">1 Star
+                                          <i class="fa fa-star"></i> <%= starCount[1] %></a>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div> 
               </div>
+          </div>
+      </div>
+      
               <div class="review_list">
                 <div class="review_item">
                   <div class="media">
@@ -673,14 +657,38 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         </div>
       </div>
     </div>
+
+    <script>
+          document.querySelectorAll('.wrap-pic-w').forEach(container => {
+        const img = container.querySelector('img');
+
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            img.style.transformOrigin = `${x}px ${y}px`;
+            img.style.transform = 'scale(2)';
+        });
+
+        container.addEventListener('mouseleave', () => {
+            img.style.transformOrigin = 'center';
+            img.style.transform = 'scale(1)';
+        });
+    });
+
+    </script>
+    
   </footer>
   <!--::footer_part end::-->
 
   <!-- jquery plugins here-->
   <!-- jquery -->
   <script src="/js/jquery-1.12.1.min.js"></script>
+  <script src="/script/user/WishList.js"></script>
+  <script src="/public/script/user/Cart.js"></script>
   <!-- popper js -->
-  <script src="/js/popper.min.js"></script>
+  <script src="/public/js/popper.min.js"></script>
   <!-- bootstrap js -->
   <script src="/js/bootstrap.min.js"></script>
   <!-- easing js -->
@@ -701,11 +709,94 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
   <script src="/js/jquery.ajaxchimp.min.js"></script>
   <script src="/js/jquery.form.js"></script>
   <script src="/js/jquery.validate.min.js"></script>
+  <script src="/script/user/Cart.js"></script>
   <script src="/js/mail-script.js"></script>
   <script src="/js/stellar.js"></script>
   <!-- custom js -->
   <script src="/js/theme.js"></script>
   <script src="/js/custom.js"></script>
+<script>
+  //wishlist
+  function showSnackbar(message) {
+    const snackbar = document.getElementById('snackbar');
+    if (snackbar) {
+      snackbar.textContent = message;
+      snackbar.className = "show";
+      setTimeout(function() { 
+        snackbar.className = snackbar.className.replace("show", ""); 
+      }, 3000); 
+    } else {
+      console.error('Snackbar element not found');
+    }
+  }
+
+  //addWish
+  
+async function addToCart(productId) {
+  console.log(productId);
+
+  const quantity = 1;
+
+  try {
+    const response = await fetch('/cart', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ productId, quantity })
+    });
+
+    if (response.ok) {
+      showSnackbar('Added to cart');
+    } else {
+      showSnackbar('Failed to add to cart');
+    }
+  } catch (error) {
+    console.log(error);
+    showSnackbar('Error adding to cart');
+  }
+}
+
+async function addToWish(button) {
+    const productId = button.getAttribute('data-product-id');
+
+    const quantity = 1;
+  
+    try {
+      const response = await fetch('/add-wishList', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          productId,
+          productquantity: quantity,
+        })
+      });
+  
+      if (response.ok) {
+        showSnackbar('Added to WishList');
+      } else {
+        const data = await response.json()
+        showSnackbar('Failed to add to WishList'+data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
+  // Attach event listener to all wish buttons
+  document.querySelectorAll('.wish-button').forEach(button => {
+    button.addEventListener('click', function() {
+      addToWish(this);
+    });
+  });
+  
+
+
+
+</script>
+  
 </body>
 
 </html>

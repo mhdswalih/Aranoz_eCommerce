@@ -5,6 +5,8 @@ const auth = require('../middleware/adminAuth');
 const adminController = require('../controller/AdminController');
 const { islogin } = require('../middleware/userAuth');
 const upload = require('../config/uploads'); 
+const CouponController = require('../controller/coupenController');
+const offerController = require('../controller/offerController');
 
 const adminRouter = express.Router();
 
@@ -55,6 +57,21 @@ adminRouter.get('/Editproduct',auth.adlogin, adminController.loadEditproduct)
 adminRouter.post('/Editproduct',auth.adlogin,upload.any(),auth.adlogin,adminController.Editproduct)
 adminRouter.post('/AddProducts', auth.adlogin, upload.any(), adminController.AddProduct);
 adminRouter.post('/Ediproduct/toggle',auth.adlogin,adminController.ListingUnlistProduct)
+
+//order
+adminRouter.get('/Order',auth.adlogin,adminController.OrderController);
+adminRouter.post('/order-status/:orderId',auth.adlogin,adminController.OrderStatus);
+
+
+//Coupon 
+adminRouter.get('/Copon',auth.adlogin,CouponController.loadCopon);
+adminRouter.post('/add-coupon', auth.adlogin, CouponController.addCoupon);
+adminRouter.put('/edit-coupon/:id', auth.adlogin,CouponController.editcopon);
+adminRouter.delete('/coupons/:couponId',auth.adlogin,CouponController.deleteCoupon);
+
+//offer
+adminRouter.get('/Offer',auth.adlogin,offerController.loadOffer);
+adminRouter.post('/add-offer',auth.adlogin,offerController.addOffer);
 
 // Extra Routes
 adminRouter.get('/chart', auth.adlogin, adminController.adchart);

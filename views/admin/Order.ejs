@@ -1,0 +1,117 @@
+
+    <%- include('../layout/adminheder') %>
+ <div class="main-panel">
+  <div class="content-wrapper">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Order Table</h4>
+          <div class="table-responsive">
+            <table class="table table-dark" >
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <!-- <th>Order ID</th> -->
+                  <th>Customer Name</th>
+                  <th>Product Details</th>
+                  <th>Status</th>
+                  <th>Price</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (orders.length > 0) { %>
+                  <% orders.forEach((order, index) => { %>
+                    <div  data-order-id="<%= orders._id %>">
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <!-- <td><%= order._id %></td> -->
+                      <td><%= order.userId.name %></td>
+                      <td>
+                        <% order.products.forEach(product => { %>
+                          <div>
+                            <img src="/products/<%= product.productId.image1 %>" alt="product image" style="width: 50px; height: 50px;">
+                            <span><%= product.productId.productname.length > 15 ? product.productId.productname.substring(0, 15) + '...': product.productId.productname %></span>
+                            <span>Quantity: <%= product.productquantity %></span>
+                          </div>
+                        <% }) %>
+                      </td>
+                      <td><%= order.orderStatus %></td>
+                      <td>₹<%= order.totalAmount %></td>
+                      <td>
+                        <div class="btn-group">
+                          <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
+                            Actions
+                          </button>
+                          <div class="dropdown-menu">
+                            <button type="button" data-status="Pending" data-order-id="<%= order._id %>" class="dropdown-item">
+                              <i class="fas fa-clock"></i> Pending
+                            </button>
+                            <button type="button" data-status="Shipped" data-order-id="<%= order._id %>" class="dropdown-item">
+                              <i class="fas fa-truck"></i> Shipped
+                            </button>
+                            <button type="button" data-status="Delivered" data-order-id="<%= order._id %>" class="dropdown-item">
+                              <i class="fas fa-check"></i> Delivered
+                            </button>
+                            <button type="button" data-status="Cancelled" data-order-id="<%= order._id %>" class="dropdown-item">
+                              <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <!-- <a  href="" d  class="dropdown-item">
+                              <i class="fas fa-times"></i> View Product
+                            </a> -->
+                          </div>
+                        </div>
+                        
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="text-center">No Orders found</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.dropdown-item').forEach(item => {
+  item.addEventListener('click', async function() { 
+    const newStatus = this.getAttribute('data-status');
+    const orderId = this.getAttribute('data-order-id'); 
+    
+    console.log(newStatus, orderId);
+    
+    const response = await fetch(`/admin/order-status/${orderId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderStatus: newStatus,
+      }),
+    });
+    
+    if (response.ok) {
+      alert('Status Changed Successfully');
+      location.reload(); 
+    } else {
+      const data = await response.json();
+      alert('Failed to Change Status: ' + data.message);
+    }
+  });
+});
+
+</script>
+
+
+    
+    
+
+    <%- include('../layout/adminfooter') %>
+

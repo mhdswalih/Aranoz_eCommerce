@@ -1,0 +1,518 @@
+<%- include('../layout/adminheder') %>
+<!-- Bootstrap 4 CSS -->
+
+<!-- jQuery and Bootstrap 4 JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<style>
+  .dark-modal {
+    background-color: #000000; /* Set background to black */
+    color: #ffffff;
+    border: 1px solid #444444;
+  }
+
+  .modal {
+    z-index: 1050 !important;
+  }
+
+  .modal-backdrop {
+    z-index: 1040 !important;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent backdrop */
+  }
+
+  .dark-modal .modal-header {
+    border-bottom: 1px solid #444444;
+  }
+
+  .dark-modal .modal-footer {
+    border-top: 1px solid #444444;
+  }
+
+  .dark-modal .form-control {
+    background-color: #333333; 
+    color: #ffffff;
+    border: 1px solid #555555;
+  }
+
+  .dark-modal .btn-primary {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+  }
+
+  .dark-modal .close {
+    color: #ffffff;
+  }
+</style>
+<!-- Navbar -->
+<div class="container-fluid page-body-wrapper">
+  <nav class="navbar p-0 fixed-top d-flex flex-row">
+    <div
+      class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center"
+    >
+      <a class="navbar-brand brand-logo-mini" href="/admin/home"
+        ><img src="/Admin assets/assets/images/logo-mini.svg" alt="logo"
+      /></a>
+    </div>
+    <div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
+      <button
+        class="navbar-toggler navbar-toggler align-self-center"
+        type="button"
+        data-toggle="minimize"
+      >
+        <span class="mdi mdi-menu"></span>
+      </button>
+      <ul class="navbar-nav w-100">
+        <li class="nav-item w-100">
+          <form
+            class="nav-link mt-2 mt-md-0 d-none d-lg-flex search"
+            action=""
+            method="get"
+          >
+            <input
+              name="search"
+              type="text"
+              class="form-control"
+              placeholder="Search Copon"
+            />
+            <button type="submit" class="search-btn">Search</button>
+          </form>
+        </li>
+      </ul>
+      <ul class="navbar-nav navbar-nav-right">
+        <li class="nav-item dropdown d-none d-lg-block">
+          <a
+            class="nav-link btn btn-success create-new-button"
+            id="createbuttonDropdown"
+            data-toggle="modal"
+            data-target="#addCouponModal"
+            href=""
+            >+ Add New Copon</a
+          >
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- Main Content -->
+  <div class="main-panel">
+    <div class="content-wrapper">
+      <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Coupon Table</h4>
+            <div class="table-responsive">
+              <table class="table table-dark">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Coupon Code</th>
+                    <th>Discount</th>
+                    <th>Min Price</th>
+                    <th>Max Redeemable</th>
+                    <th>Valid Till</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (copons.length > 0) { %>
+                    <% copons.forEach((copon, index) => { %>
+                      <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= copon.couponCode %></td>
+                        <td><%= copon.percentage %>%</td>
+                        <td><%= copon.minPrice %></td>
+                        <td><%= copon.maxRadeemAmount %></td>
+                        <td><%= new Date(copon.expiryDate).toLocaleDateString() %></td>
+                        <td>
+                          <div class="btn-group">
+                            <button
+                              type="button"
+                              class="btn btn-outline-secondary dropdown-toggle"
+                              data-toggle="dropdown"
+                            >
+                              ...
+                            </button>
+                            <div class="dropdown-menu">
+                             
+                                <button
+                                type="button"
+                                data-coupon-id="<%= copon._id %>"
+                                class="btn btn-info btn-fw btn dropdown-item dlt-btn"
+                            >
+                                Delete
+                            </button>
+                              
+                        
+                              <a
+                                type="button"
+                                href="/admin/edit-coupon/<%= copon._id %>"
+                                class="btn btn-success btn-fw btn dropdown-item" data-toggle="modal"
+                                data-target="#editCouponModal"  onclick="openEditModal('<%= JSON.stringify(copon) %>')">Edit</a
+                              >
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="8" class="text-center">No Coupons found</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+<div
+  class="modal fade"
+  id="addCouponModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="addCouponLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div
+      class="modal-content dark-modal"
+      style="background-color: #191c24; border: none"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title" id="addCouponLabel">Add New Coupon</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="background-color: #191c24">
+        <form id="addCouponForm">
+          <div class="form-group">
+            <label for="couponCode">Coupon Code</label>
+            <input
+              type="text"
+              name="coupon"
+              class="form-control"
+              id="couponCode"
+              placeholder="Enter coupon code"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="discount">Discount (%)</label>
+            <input
+              type="number"
+              name="discount"
+              class="form-control"
+              id="discount"
+              placeholder="Enter discount percentage"
+              min="0"
+              max="100"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="minPrice">Min Price</label>
+            <input
+              type="number"
+              name="minPrice"
+              class="form-control"
+              id="minPrice"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="maxPrice">Max Redeemable</label>
+            <input
+              type="number"
+              name="maxPrice"
+              class="form-control"
+              id="maxPrice"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="validTill">Valid Till</label>
+            <input
+              type="date"
+              name="validTill"
+              class="form-control"
+              id="validTill"
+              required
+            />
+          </div>
+          <div id="err" style="color: red"></div>
+     
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          style="background-color: #00d25b"
+        >
+          Add Coupon
+        </button>
+    </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--editcopon Modal-->
+<div
+  class="modal fade"
+  id="editCouponModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="editCouponLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div
+      class="modal-content dark-modal"
+      style="background-color: #191c24; border: none"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCouponLabel">Edit Coupon</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="background-color: #191c24">
+        <form id="editCouponForm">
+          <input type="hidden" name="couponId" id="editCouponId" />
+
+          <div class="form-group">
+            <label for="editCouponCode">Coupon Code</label>
+            <input
+              type="text"
+              name="editCouponCode"
+              class="form-control"
+              id="editCouponCode"
+              placeholder="Enter coupon code"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editDiscount">Discount (%)</label>
+            <input
+              type="number"
+              name="editDiscount"
+              class="form-control"
+              id="editDiscount"
+              placeholder="Enter discount percentage"
+              min="0"
+              max="100"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editMinPrice">Min Price</label>
+            <input
+              type="number"
+              name="editMinPrice"
+              class="form-control"
+              id="editMinPrice"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editMaxPrice">Max Redeemable</label>
+            <input
+              type="number"
+              name="editMaxPrice"
+              class="form-control"
+              id="editMaxPrice"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editValidTill">Valid Till</label>
+            <input
+              type="date"
+              name="editValidTill"
+              class="form-control"
+              id="editValidTill"
+              required
+            />
+          </div>
+          <div id="editErr" style="color: red"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          style="background-color: #00d25b"
+        >
+          Update Coupon
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+
+<script>
+ document.getElementById('addCouponForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const coupon = document.getElementById("couponCode").value.trim();
+  const discount = document.getElementById("discount").value.trim();
+  const minPrice = document.getElementById("minPrice").value.trim();
+  const maxPrice = document.getElementById("maxPrice").value.trim();
+  const validTill = document.getElementById("validTill").value.trim();
+  const err = document.getElementById("err");
+
+  err.innerHTML = ""; 
+
+  if (!coupon || !discount || !minPrice || !maxPrice || !validTill) {
+    err.innerHTML = "All fields are required.";
+    return;
+  }
+
+  if (discount < 0 || discount > 100) {
+    err.innerHTML = "Discount must be between 0 and 100.";
+    return;
+  }
+
+  if (Number(minPrice) > Number(maxPrice)) {
+    err.innerHTML = "Min Price cannot be greater than Max Price.";
+    return;
+  }
+
+  try {
+    const response = await fetch("/admin/add-coupon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        coupon,
+        discount,
+        minPrice,
+        maxPrice,
+        validTill,
+      }),
+    });
+
+    if (response.ok) {
+      err.innerHTML = ""; 
+      window.location.href = "/admin/Coupon";
+    } else {
+      const data = await response.json();
+      err.innerHTML = data.message || "An error occurred.";
+    }
+  } catch (error) {
+    err.innerHTML = "An error occurred while submitting the form.";
+  }
+});
+
+    //edit copon 
+    function openEditModal(coupon) {
+    const couponObj = JSON.parse(coupon);  
+    document.getElementById('editCouponId').value = couponObj._id;
+    document.getElementById('editCouponCode').value = couponObj.couponCode;
+    document.getElementById('editDiscount').value = couponObj.percentage;
+    document.getElementById('editMinPrice').value = couponObj.minPrice;
+    document.getElementById('editMaxPrice').value = couponObj.maxRadeemAmount;
+    document.getElementById('editValidTill').value = new Date(couponObj.expiryDate).toISOString().split('T')[0];
+    $('#editCouponModal').modal('show');
+}
+
+document.getElementById('editCouponForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const couponId = document.getElementById('editCouponId').value;
+    console.log('this is coupon id',couponId)
+    console.log('this is coupon code',document.getElementById('editCouponCode').value)
+    try {
+        const response = await fetch(`/admin/edit-coupon/${couponId}`, {
+    method: 'PUT',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        couponCode: document.getElementById('editCouponCode').value,
+        percentage: document.getElementById('editDiscount').value,
+        minPrice: document.getElementById('editMinPrice').value,
+        maxRadeemAmount: document.getElementById('editMaxPrice').value,
+        expiryDate: document.getElementById('editValidTill').value,
+    })
+})
+
+        const result = await response.json();
+        if (result.success) {
+        
+            location.reload(); 
+        } else {
+            document.getElementById('editErr').innerText = result.message;
+        }
+    } catch (error) {
+        console.error('Error updating coupon:', error);
+        document.getElementById('editErr').innerText = 'Failed to update coupon.';
+    }
+});
+document.addEventListener("DOMContentLoaded", function() {
+    const deleteButtons = document.querySelectorAll(".dlt-btn");
+
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", async function() {
+            const couponId = this.getAttribute("data-coupon-id");
+
+            if (!couponId) {
+                alert("Coupon ID is missing.");
+                return;
+            }
+
+            const confirmation = confirm(`Are you sure you want to delete this coupon?`);
+            if (!confirmation) return;
+
+            try {
+                const response = await fetch(`/admin/coupons/${couponId}`, {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert("Coupon deleted successfully!");
+                    window.location.reload(); 
+                } else {
+                    const data = await response.json();
+                    alert(data.message || "An error occurred while deleting the coupon.");
+                }
+            } catch (error) {
+                console.error("Error deleting coupon:", error);
+                alert("An error occurred while deleting the coupon.");
+            }
+        });
+    });
+});
+
+
+
+
+</script>
+
+<%- include('../layout/adminfooter') %>

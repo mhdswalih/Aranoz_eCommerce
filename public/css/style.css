@@ -419,6 +419,7 @@ ul {
   /* line 288, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_common.scss */
   .container {
     max-width: 1170px;
+    
   }
 }
 
@@ -2665,11 +2666,49 @@ ul {
 /* line 3, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_feature_part.scss */
 .feature_part .single_feature_post_text {
   padding: 50px;
-  /* background-color: #f8fbff; */
-  margin-bottom: 30px;
-  position: relative;
+  background-color: #f8fbff;
+  display: flex;
+  flex-direction: column;
+  
+  width: 500px;
+
   height: 400px;
 }
+.banner-img{
+  /* background-image: url(/img/img/giphy.webp); */
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#img-1{
+  background-image: url(/img/img/19c34d14d12f067d0373efa47d79313f.gif);
+ 
+  background-repeat: no-repeat;
+  background-size: cover;
+
+}
+#img-2{
+ width: 500px;
+ position: relative;
+ background-image: url(/img/img/1b6a7652332655071a8fb11a0a3b3892.gif);
+ 
+ background-repeat: no-repeat;
+ background-size: cover;
+}
+#img-3{
+  width: 500px;
+  position: relative;
+  background-image: url(/img/img/giphy1.webp);
+  background-repeat: no-repeat; 
+   background-size: cover;
+ }
+ #img-4{
+  width: 500px;
+
+  background-image: url(/img/img/200w.webp);
+  background-repeat: no-repeat; 
+   background-size: cover;
+ }
+
 .single_product_menu {
   display: flex;
   align-items: center;
@@ -3173,7 +3212,7 @@ ul {
 /*************** subscribe now **********************/
 /* line 2, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_subscribe_area.scss */
 .subscribe_area {
-  background-image: url("../img/subscribe_area.png");
+  /* background-image: url("../img/subscribe_area.png"); */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -5394,6 +5433,7 @@ ul {
 
 /* line 1884, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_product.scss */
 .login_part .login_part_text, .login_part .login_part_form {
+ 
   padding: 80px 70px;
   height: 600px;
   display: table;
@@ -5423,10 +5463,12 @@ ul {
 
 /* line 1901, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_product.scss */
 .login_part .login_part_text {
-  background-image: -moz-linear-gradient(16deg, #ff005a 0%, #ff5d2d 64%, #ffba00 100%);
-  background-image: -webkit-linear-gradient(16deg, #ff005a 0%, #ff5d2d 64%, #ffba00 100%);
-  background-image: -ms-linear-gradient(16deg, #ff005a 0%, #ff5d2d 64%, #ffba00 100%);
-  background-size: 200% auto;
+ 
+  background-image: url('/img/Perfume\ Creator.jpg');
+  background-size: cover;  /* Scales the image to cover the entire container */
+  background-position: center;  /* Centers the image */
+  background-repeat: no-repeat;
+ 
 }
 
 /* line 1906, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_product.scss */

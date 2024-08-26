@@ -163,9 +163,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector(".forms-sample");
     const imageInputs = [
-      document.getElementById("image1"),
-      document.getElementById("image2"),
-      document.getElementById("image3"),
+        document.getElementById("image1"),
+        document.getElementById("image2"),
+        document.getElementById("image3"),
     ];
     const cropContainer = document.getElementById("crop-container");
     const cropImage = document.getElementById("crop-image");
@@ -175,145 +175,163 @@
     let currentPreview;
     let croppedImagesData = {};
 
+    const imageRegex = /\.(jpg|jpeg|png|gif)$/i;
+
     imageInputs.forEach((input) => {
-      input.addEventListener("change", function (event) {
-        document.getElementById("crop-button").style.display = "block";
-        currentPreview = document.getElementById(
-          `image-preview${imageInputs.indexOf(input) + 1}`
-        );
-        currentPreview.src = '';
-        currentInput = input;
-        const file = event.target.files[0];
-        input.value = '';
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            cropImage.src = e.target.result;
-            cropContainer.style.display = "block";
-            if (cropper) {
-              cropper.destroy();
+        input.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file && imageRegex.test(file.name)) {
+                document.getElementById("crop-button").style.display = "block";
+                currentPreview = document.getElementById(
+                    `image-preview${imageInputs.indexOf(input) + 1}`
+                );
+                currentPreview.src = '';
+                currentInput = input;
+                input.value = '';
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    cropImage.src = e.target.result;
+                    cropContainer.style.display = "block";
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: 1,
+                        viewMode: 2,
+                        movable: false,
+                        zoomable: false,
+                        rotatable: false,
+                        scalable: false,
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Image",
+                    text: "Please select a valid image file (JPG, JPEG, PNG, GIF).",
+                });
+                input.value = ''; // Clear the invalid file
             }
-            cropper = new Cropper(cropImage, {
-              aspectRatio: 0.72,
-              viewMode: 1,
-              movable: false,
-              zoomable: false,
-              rotatable: false,
-              scalable: false,
-            });
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+        });
     });
 
     cropButton.addEventListener("click", () => {
-      if (cropper) {
-        const canvas = cropper.getCroppedCanvas();
-        const croppedImageDataURL = canvas.toDataURL();
-        cropContainer.style.display = "none";
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas();
+            const croppedImageDataURL = canvas.toDataURL();
+            cropContainer.style.display = "none";
 
-        currentPreview.src = croppedImageDataURL;
-        currentPreview.style.maxWidth = "100%";
+            currentPreview.src = croppedImageDataURL;
+            currentPreview.style.maxWidth = "100%";
 
-        const inputName = currentInput.getAttribute("name");
-        croppedImagesData[inputName] = dataURLtoBlob(croppedImageDataURL);
-      }
+            const inputName = currentInput.getAttribute("name");
+            croppedImagesData[inputName] = dataURLtoBlob(croppedImageDataURL);
+        }
     });
 
     function dataURLtoBlob(dataurl) {
-      let arr = dataurl.split(","),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      return new Blob([u8arr], { type: mime });
+        let arr = dataurl.split(","),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]),
+            n = bstr.length,
+            u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
     }
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      const productName = document.getElementById('productName').value.trim();
-      const productPrice = document.getElementById('productPrice').value.trim();
-      const productQuantity = document.getElementById('productQuantity').value.trim();
-      const productDescription = document.getElementById('productDescription').value.trim();
-      const brands = document.getElementById('brands').value.trim();
-      const categories = document.getElementById('Categories').value.trim();
-      const productId = document.getElementById('productId').value;
-      const submitError = document.getElementById('submitError');
+        const productName = document.getElementById("productName").value.trim();
+        const productPrice = document.getElementById("productPrice").value.trim();
+        const productQuantity = document.getElementById("productQuantity").value.trim();
+        const productDescription = document.getElementById("productDescription").value.trim();
+        const brands = document.getElementById("brands").value.trim();
+        const categories = document.getElementById("Categories").value.trim();
+        const productId = document.getElementById("productId").value;
+        const submitError = document.getElementById("submitError");
 
-      let errorMessage = '';
+        let errorMessage = '';
 
-      if (!productName) {
-        errorMessage += 'Product Name is required.<br>';
-      }
-      if (!productPrice || isNaN(productPrice) || productPrice <= 0) {
-        errorMessage += 'Please enter a valid Product Price.<br>';
-      }
-      if (!productQuantity || isNaN(productQuantity) || productQuantity <= 0) {
-        errorMessage += 'Please enter a valid Product Quantity.<br>';
-      }
-      if (!productDescription) {
-        errorMessage += 'Product Description is required.<br>';
-      }
-      if (!brands) {
-        errorMessage += 'Please select a Brand.<br>';
-      }
-      if (!categories) {
-        errorMessage += 'Please select a Category.<br>';
-      }
-
-      if (errorMessage) {
-        submitError.innerHTML = errorMessage;
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('productname', productName);
-      formData.append('productprice', productPrice);
-      formData.append('productquantity', productQuantity);
-      formData.append('productdescription', productDescription);
-      formData.append('brands', brands);
-      formData.append('Categories', categories);
-      formData.append('productId', productId);
-
-      for (let key in croppedImagesData) {
-        formData.append(key, croppedImagesData[key]);
-      }
-
-      try {
-        const response = await fetch('/admin/Editproduct', {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
-
-        if (result.success) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Product updated successfully!',
-            icon: 'success',
-          }).then(() => {
-            window.location.href = '/admin/Products';
-          });
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: result.message || 'An error occurred while updating the product.',
-            icon: 'error',
-          });
+        if (!productName) {
+            errorMessage += 'Product Name is required.<br>';
         }
-      } catch (error) {
-        console.error('Error updating product:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'An error occurred while updating the product.',
-          icon: 'error',
+        if (!productPrice || isNaN(productPrice) || productPrice <= 0) {
+            errorMessage += 'Please enter a valid Product Price.<br>';
+        }
+        if (!productQuantity || isNaN(productQuantity) || productQuantity <= 0) {
+            errorMessage += 'Please enter a valid Product Quantity.<br>';
+        }
+        if (!productDescription) {
+            errorMessage += 'Product Description is required.<br>';
+        }
+        if (!brands) {
+            errorMessage += 'Please select a Brand.<br>';
+        }
+        if (!categories) {
+            errorMessage += 'Please select a Category.<br>';
+        }
+
+        imageInputs.forEach((input) => {
+            const file = input.files[0];
+            if (file && !imageRegex.test(file.name)) {
+                errorMessage += `Invalid file type for ${input.name}. Only JPG, JPEG, PNG, and GIF are allowed.<br>`;
+            }
         });
-      }
+
+        if (errorMessage) {
+            submitError.innerHTML = errorMessage;
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("productname", productName);
+        formData.append("productprice", productPrice);
+        formData.append("productquantity", productQuantity);
+        formData.append("productdescription", productDescription);
+        formData.append("brands", brands);
+        formData.append("Categories", categories);
+        formData.append("productId", productId);
+
+        for (let key in croppedImagesData) {
+            formData.append(key, croppedImagesData[key]);
+        }
+
+        try {
+            const response = await fetch("/admin/Editproduct", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    title: "Success",
+                    text: "Product updated successfully!",
+                    icon: "success",
+                }).then(() => {
+                    window.location.href = "/admin/Products";
+                });
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: result.message || "An error occurred while updating the product.",
+                    icon: "error",
+                });
+            }
+        } catch (error) {
+            console.error("Error updating product:", error);
+            Swal.fire({
+                title: "Error",
+                text: "An error occurred while updating the product.",
+                icon: "error",
+            });
+        }
     });
-  });
+});
+
 </script>

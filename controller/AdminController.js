@@ -4,6 +4,7 @@ const Product = require("../model/productModel");
 const Category = require("../model/categoryModel");
 const Brand = require("../model/brandModel");
 const upload = require("../config/uploads");
+const Order = require('../model/orderModel')
 
 // Load Login Page
 const loadLogin = async (req, res) => {
@@ -629,6 +630,41 @@ const adminLogout = async (req,res) =>{
   })
 }
 
+const OrderController = async (req, res) => {
+  try {
+      
+    const orders = await Order.find().populate('products.productId').populate('userId')
+    
+    res.render('admin/Order', { orders });
+  } catch (error) {
+    console.log(error);
+  }
+};
+//orderStatus
+
+const OrderStatus  = async (req,res)=>{
+  try {
+    const {orderId} = req.params;
+    // console.log(orderId,req.body,'rew');    
+    const {orderStatus} = req.body;
+  
+      const status = await Order.findById(orderId)
+     if(status.orderStatus ==="Cancelled"){
+      return
+     }else{
+      status.orderStatus = orderStatus
+    }
+    const updatedOrder = status.save()
+    if(updatedOrder){
+     res.json({messege:'Order Status Changed Successfully',order:updatedOrder})
+    }else{
+     res.json({messege:'something went wrong'})
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 
 module.exports = {
   loadLogin,
@@ -661,4 +697,6 @@ module.exports = {
   softDeleteBrand,
   ListingUnlistProduct,
   adminLogout,
+  OrderController,
+  OrderStatus,
 };

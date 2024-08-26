@@ -13,6 +13,12 @@ const productSchema = mongoose.Schema({
     type: Number,
     
   },
+  ratings: [
+    {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        rating: { type: Number,  } 
+    },
+],
   productdescription: {
     type: String,
     

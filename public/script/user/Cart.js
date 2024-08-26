@@ -1,117 +1,110 @@
-const { json } = require("body-parser");
+function showSnackbar(message) {
+  const snackbar = document.getElementById('snackbar');
+  if (snackbar) {
+    snackbar.textContent = message;
+    snackbar.className = "show";
+    setTimeout(function() { 
+      snackbar.className = snackbar.className.replace("show", ""); 
+    }, 3000); 
+  } else {
+    console.error('Snackbar element not found');
+  }
+}
 
 async function addToCart(button) {
-    const productId = button.getAttribute('data-product-id');
-    const userId = button.getAttribute('data-user-id');
-  
-    const quantity = 1;
-  
-    try {
-      const response = await fetch('/cart', {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          productId,
-          userId,
-          productquantity: quantity,
-        
-        })
-      });
-  
-      if (response.ok) {
-        alert('Added to cart');
-      } else {
-        alert('Failed to add to cart');
-      }
-    } catch (error) {
-      console.log(error);
+  const productId = button.getAttribute('data-product-id');
+  const userId = button.getAttribute('data-user-id');
+  const quantity = 1;
+
+  try {
+    const response = await fetch('/cart', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ productId, userId, productquantity: quantity })
+    });
+
+    if (response.ok) {
+      showSnackbar('Added to cart');
+    } else {
+      showSnackbar('Failed to add to cart');
     }
+  } catch (error) {
+    console.log(error);
+    showSnackbar('Error adding to cart');
   }
-  
-  document.querySelector('#add_cart').addEventListener('click', function() {
-    addToCart(this);
-  });
-  
+}
 
-  //removefromCart
+async function removeFromCart(productId) {
+  try {
+    const response = await fetch('/removeCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ productId })
+    });
 
-  async function removeFromCart(productId) {
-    try {
-      const response = await fetch('/removeCart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ productId })
-      });
-  
-      if (response.ok) {
-        alert('Removed from cart');
-        window.location.reload(); 
-      } else {
-        alert('Failed to remove from cart');
-      }
-    } catch (error) {
-      console.error('Error:', error);
+    if (response.ok) {
+      showSnackbar('Removed from cart');
+      setTimeout(() => window.location.reload(), 3500); 
+    } else {
+      showSnackbar('Failed to remove from cart');
     }
+  } catch (error) {
+    console.error('Error:', error);
+    showSnackbar('Error removing from cart');
   }
-
-//increament stock 
+}
 
 async function incrementCount(productId) {
-    try {
-      const response = await fetch('/stockInc', {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ productId })
-      });
-  
-      if (response.ok) {
-        const result = await response.json();
-        const quantityInput = document.getElementById(`quantity-${productId}`);
-        quantityInput.value = result.newQuantity; 
-        alert('Increment successful');
-        setTimeout(() => {
-            location.reload()
-        },500)
-      } else {
-        alert('Failed to increment');
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  
-  //stock Dec
-  async function decrementCount(productId) {
-    try {
-      const response = await fetch('/stockDec', {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ productId })
-      });
-  
-      if (response.ok) {
-        const result = await response.json();
-        const quantityInput = document.getElementById(`quantity-${productId}`);
-        quantityInput.value = result.newQuantity; 
-        setTimeout(() => {
-            location.reload()
-        },500)
-        alert('Decrement successful');
-      } else {
-        alert('Failed to decrement');
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  
+  try {
+    const response = await fetch('/stockInc', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ productId })
+    });
 
-  
+    if (response.ok) {
+      const result = await response.json();
+      const quantityInput = document.getElementById(`quantity-${productId}`);
+      quantityInput.value = result.newQuantity; 
+      showSnackbar('Increment successful');
+      setTimeout(() => location.reload(), 3500);
+    } else {
+      showSnackbar('Failed to increment');
+    }
+  } catch (error) {
+    console.log(error);
+    showSnackbar('Error incrementing stock');
+  }
+}
+
+async function decrementCount(productId) {
+  try {
+    const response = await fetch('/stockDec', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ productId })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      const quantityInput = document.getElementById(`quantity-${productId}`);
+      quantityInput.value = result.newQuantity; 
+      showSnackbar('Decrement successful');
+      setTimeout(() => location.reload(), 3500);
+    } else {
+      const data = await response.json();
+      showSnackbar('Failed to decrement: ' + data.message);
+    }
+  } catch (error) {
+    console.log(error);
+    showSnackbar('Error decrementing stock');
+  }
+}

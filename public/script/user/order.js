@@ -1,8 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
+
+    function addressM(){
+        const amodal = document.getElementById('addressModal');
+        if(amodal.style.display === 'none'){
+            amodal.style.display = 'block'
+        } else {
+            amodal.style.display = 'none'
+        }
+    }
     const addressRadios = document.querySelectorAll('input[name="selectedAddress"]');
     const selectedAddressDiv = document.getElementById('selectedAddress');
 
-    // Update selected address display when a radio button is checked
     addressRadios.forEach(function (radio) {
         radio.addEventListener('change', function () {
             if (this.checked) {
@@ -11,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Trigger the change event for the initially checked radio button
+    // Set the initially selected address if any
     const checkedRadio = document.querySelector('input[name="selectedAddress"]:checked');
     if (checkedRadio) {
         checkedRadio.dispatchEvent(new Event('change'));
@@ -21,9 +29,11 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('orderForm').addEventListener('submit', async (event) => {
     event.preventDefault();
 
+    // Get selected shipping address and payment method
     const shippingAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-
+    
+    // Create request body
     const requestBody = {
         shippingAddress,
         paymentMethod,
@@ -32,6 +42,7 @@ document.getElementById('orderForm').addEventListener('submit', async (event) =>
     console.log("Order Request Body:", requestBody);
 
     try {
+        // Send POST request to server
         const response = await fetch('/order', {
             method: 'POST',
             headers: {
@@ -39,40 +50,38 @@ document.getElementById('orderForm').addEventListener('submit', async (event) =>
             },
             body: JSON.stringify(requestBody),
         });
-
+    
+        // Parse and handle server response
         const data = await response.json();
-        if (response.ok) {
-            // Show modal with animation
-            const modal = document.getElementById('orderPlacedModal');
-            const modalContent = document.querySelector('.modal-content');
-            modal.style.display = 'block';
-            modal.classList.add('show');
-            modalContent.classList.add('show');
-            modal.querySelector('#okButton').addEventListener('click', () => {
-                modalContent.classList.remove('show');
-                modal.classList.remove('show');
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 300);
+        console.log(data);
+        
+        if (data.success) {
+            // Show SweetAlert for success
+            Swal.fire({
+                title: 'Order Placed!',
+                text: 'Your order has been placed successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
             });
         } else {
-            alert(data.message);
+            // Show SweetAlert for error
+            Swal.fire({
+                text: data.message,
+                confirmButtonText: 'OK'
+            });
         }
     } catch (error) {
+        // Show SweetAlert for fetch or JSON parsing errors
         console.error('Error placing order:', error);
-        alert('An error occurred. Please try again.');
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
     }
+
+
 });
 
-// Close modal when clicking outside of it
-window.addEventListener('click', (event) => {
-    const modal = document.getElementById('orderPlacedModal');
-    if (event.target === modal) {
-        const modalContent = document.querySelector('.modal-content');
-        modalContent.classList.remove('show');
-        modal.classList.remove('show');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
-    }
-});
+

@@ -1,0 +1,292 @@
+
+<style>
+    /* Add this CSS to your stylesheet */
+.order-list {
+    margin-top: 30px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.order-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.order-item:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-price {
+    font-size: 16px;
+    color: #ff5a00;
+    font-weight: 500;
+}
+
+.cancel-order-btn {
+    background-color: #ff5a00;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-order-btn:hover {
+    background-color: #e14b00;
+}
+
+.product-tracker h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.tracker-status {
+    font-size: 14px;
+    font-weight: 600;
+    color: #28a745;
+}
+
+@media (max-width: 768px) {
+    .order-item .col-md-3,
+    .order-item .col-md-6,
+    .order-item .col-md-3 {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .order-item .col-md-6 {
+        order: 2;
+    }
+
+    .order-item .col-md-3:last-child {
+        order: 3;
+    }
+}
+
+</style>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<%- include('../layout/usernav') %>
+
+<section class="breadcrumb breadcrumb_bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="breadcrumb_iner">
+                    <div class="breadcrumb_iner_item">
+                        <h2>Order List</h2>
+                        <p>Home <span>-</span> Orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="confirmation_part section_padding">
+    <div class="container">
+        <div class="order-list">
+            <h1 class="primary-title">Your Orders</h1>
+
+            <% orders.forEach(orderItem => { %>
+            <div class="order-item" data-order-id="<%= orderItem._id %>">
+                <div class="row align-items-center">
+                    <% orderItem.products.forEach(product => { %>
+                    <div class="col-md-3">
+                        <img src="/products/<%= product.productId.image1 %>" alt="Product Image" class="img-fluid">
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="product-title"><%= product.productId.productname %></h2>
+                        <p class="product-price">₹<%= product.productId.productprice * product.productquantity %></p>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <button type="button" class="genric-btn danger-border view-product-btn" 
+                        data-product-name="<%= product.productId.productname %>"
+                        data-product-image="/products/<%= product.productId.image1 %>"
+                        data-product-price="<%= product.productId.productprice %>"
+                        data-product-category="<%= product.productId.category ? product.productId.category.name : 'N/A' %>" 
+                        data-product-description="<%=product.productId.productdescription %>"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#productModal">
+                    View Product
+                </button>
+                
+                        <button type="submit" class="genric-btn danger-border cancel-order-btn" data-item-id="<%= product._id %>" data-product-id="<%= product.productId._id %>">
+                            Cancel Order
+                        </button>
+                        <div class="product-tracker mt-3">
+                            <h3>Order Status:</h3>
+                            <span class="tracker-status"><%= orderItem.orderStatus %></span>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <% }); %>
+
+            <!-- Pagination -->
+            <nav aria-label="Order list pagination">
+                <ul class="pagination justify-content-center mt-4">
+                    <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a style="color: black; background-color: white;" class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a style="color: black; background-color: white;border: none;" class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a style="color: black; background-color: white; border: none;" class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<%- include('../layout/userfooter') %>
+<!-- Product View Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Product Image -->
+              <img src="" id="productImage" class="img-fluid" alt="Product Image">
+            </div>
+            <div class="col-md-6">
+              <!-- Product Details -->
+              <h4 id="productName"></h4>
+              <p id="productCategory" class="text-muted"></p>
+              <p id="productDescription"></p>
+              <h4>₹<span id="productPrice"></span></h4>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Modal content elements
+    const modalTitle = document.getElementById('productModalLabel');
+    const modalImage = document.getElementById('productImage');
+    const modalName = document.getElementById('productName');
+    const modalCategory = document.getElementById('productCategory');
+    const modalDescription = document.getElementById('productDescription');
+    const modalPrice = document.getElementById('productPrice');
+    
+    // Handle view product button clicks
+    document.body.addEventListener('click', event => {
+        if (event.target.classList.contains('view-product-btn')) {
+            const button = event.target;
+            const productName = button.getAttribute('data-product-name');
+            const productImage = button.getAttribute('data-product-image');
+            const productPrice = button.getAttribute('data-product-price');
+            const productCategory = button.getAttribute('data-product-category');
+            const productDescription = button.getAttribute('data-product-description');
+
+            // Set modal content
+            modalTitle.innerText = productName;
+            modalImage.src = productImage;
+            modalName.innerText = productName;
+            modalCategory.innerText = productCategory;
+            modalDescription.innerText = productDescription;
+            modalPrice.innerText = productPrice;
+        }
+    });
+
+    // Handle cancel order button clicks
+    document.body.addEventListener('click', async event => {
+        if (event.target.classList.contains('cancel-order-btn')) {
+            const button = event.target;
+            const itemId = button.getAttribute('data-item-id');
+            const productId = button.getAttribute('data-product-id');
+
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to cancel this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, cancel it!',
+                cancelButtonText: 'No, keep it'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('/cancelOrder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ itemId, productId }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        await Swal.fire(
+                            'Cancelled!',
+                            'Order for the product has been cancelled successfully.',
+                            'success'
+                        );
+                        location.reload();
+                    } else {
+                        await Swal.fire(
+                            'Error!',
+                            `Failed to cancel order: ${data.message}`,
+                            'error'
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error cancelling order:', error);
+                    await Swal.fire(
+                        'Error!',
+                        'An error occurred. Please try again.',
+                        'error'
+                    );
+                }
+            }
+        }
+    });
+});
+</script>
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

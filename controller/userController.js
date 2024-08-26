@@ -6,6 +6,11 @@ const nodemailer = require("nodemailer");
 const { Categories } = require("./AdminController");
 const Brand = require("../model/brandModel");
 const Address = require("../model/AddressModel");
+const mongoose=require('mongoose')
+const crypto = require('crypto');
+const { token } = require("morgan");
+const Order = require("../model/orderModel");
+const { error } = require("console");
 require("dotenv").config();
 
 // Password hashing
@@ -47,7 +52,7 @@ const sendOtpToMail = async (email, otp) => {
   }
 };
 
-// Load OTP page
+// Load OTP page 
 const loadOtp = async (req, res) => {
   try {
     res.render("user/otp", { email: req.session.email });
@@ -221,43 +226,116 @@ const logout = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+//bestSellers
+const bestSellers = async () => {
+  try {
+    const bestSellers = await Order.aggregate([
+      { $unwind: '$products' }, 
+      { 
+        $group: {
+          _id: '$products.productId', 
+          orderCount: { $sum: '$products.quantity' } 
+        } 
+      },
+      { $sort: { orderCount: -1 } }, 
+      { $limit: 5 } 
+    ]).exec();
+    
+  
+    const productDetails = await Product.find({ _id: { $in: bestSellers.map(item => item._id) }, listed: true })
+      .populate('category')
+      .populate('brand');
+
+    return productDetails;
+  } catch (error) {
+    console.error("Error fetching best sellers", error);
+    return [];
+  }
+};
 
 //shop
 const shope = async (req, res) => {
   try {
-    
+    // const { category, brand, minPrice, maxPrice, sort,search } = req.query; 
+    category=req.query.category||'';
+    brand = req.query.brand||'';
+    minPrice = req.query.minPrice||'';
+    maxPrice = req.query.maxPrice || '';
+    search = req.query.search || '';
+    sort = req.query.sort || '';
+   
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
+    const bestSell = await bestSellers(); 
+    let filterProduct = { listed: true };
 
-    
-    const shop = await Product.find({ listed: true })
+    if (category) {
+      const categoryDocs = await Category.find({ _id: { $in: category } });
+      if (categoryDocs.length > 0) {
+        filterProduct.category = { $in: categoryDocs.map(doc => doc._id) };
+      }
+    }
+
+    if (brand) {
+      const brandDocs = await Brand.find({ _id: { $in: brand } });
+      if (brandDocs.length > 0) {
+        filterProduct.brand = { $in: brandDocs.map(doc => doc._id) };
+      }
+    }
+
+    if (minPrice && maxPrice) {
+      filterProduct.price = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };
+    }
+      // Search query
+      if (search) {
+        filterProduct.$or = [
+          { productname: { $regex: search, $options: 'i' } }, 
+          // { productdescription: { $regex: search, $options: 'i' } },
+          { brand: await Brand.findOne({ name: { $regex: search, $options: 'i' } }) },
+          { category: await Category.findOne({ name: { $regex: search, $options: 'i' } }) },
+        ];
+      }
+
+    let sortOption = {};
+    if (sort === 'price-asc') {
+      sortOption. productprice= 1; 
+    } else if (sort === 'price-desc') {
+      sortOption. productprice = -1; 
+    }
+
+    const products = await Product.find(filterProduct)
+      .populate('category')
+      .populate('brand')
+      .sort(sortOption)
       .skip(skip)
       .limit(limit);
-    
-    
-    const brand = await Brand.find({ delete: false, isListed: true });
+    console.log('total products',products)
+    const totalProducts = await Product.countDocuments(filterProduct);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const brands = await Brand.find({ delete: false, isListed: true });
     const categories = await Category.find({ delete: false, isListed: true });
     const user = await User.findOne({ _id: req.session.user });
 
-    
-    const totalProducts = await Product.countDocuments({ listed: true });
-    const totalPages = Math.ceil(totalProducts / limit);
-
     res.render("user/shope", {
-      shop,
+      bestSell,
+      shop: products,
       categories,
-      brand,
+      brands,
       user,
       currentPage: page,
       totalPages,
       limit,
+      search,
     });
   } catch (error) {
-    console.error("Error to load category", error);
-    res.status(500).json({ message: "internal server error" });
+    console.error("Error loading products", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 //single Product
 const singleproduct = async (req, res) => {
@@ -265,13 +343,31 @@ const singleproduct = async (req, res) => {
     const id = req.params.id;
     const singleproduct = await Product.findById(id).populate("category");
     const user = await User.findOne({ _id: req.session.user });
-    console.log(singleproduct);
-    res.render("user/single-product", { singleproduct, user });
+
+    if (!singleproduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+  
+    const totalReviews = singleproduct.ratings.length;
+    const totalRating = singleproduct.ratings.reduce((acc, r) => acc + r.rating, 0);
+    const overallRating = totalReviews > 0 ? (totalRating / totalReviews).toFixed(1) : 0;
+
+    const starCount = {
+      5: singleproduct.ratings.filter(r => r.rating === 5).length,
+      4: singleproduct.ratings.filter(r => r.rating === 4).length,
+      3: singleproduct.ratings.filter(r => r.rating === 3).length,
+      2: singleproduct.ratings.filter(r => r.rating === 2).length,
+      1: singleproduct.ratings.filter(r => r.rating === 1).length,
+    };
+
+    res.render("user/single-product", { singleproduct, user, overallRating, totalReviews, starCount });
   } catch (error) {
     console.error("Error to load single-product", error);
     res.status(500).json({ message: "internal server error" });
   }
 };
+
 //load Profile
 const loadeProfile = async (req, res) => {
   try {
@@ -500,6 +596,95 @@ const DeleteAddress = async (req, res) => {
   }
 };
 
+const LoadforgetPassword = async (req, res) => {
+  try {
+      res.render('user/forgetPassword');
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const forgetPassword = async (req, res) => {
+  try {
+      const { email } = req.body;
+      const user = await User.findOne({ email: email });
+      if (!user) {
+          return res.status(400).json({ message: 'No account with that email address exists' });
+      }
+
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
+
+      await user.save();
+
+      const transporter = nodemailer.createTransport({
+          service: 'Gmail',
+          auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS,
+          }
+      });
+
+      const mailOptions = {
+          to: user.email,
+          from: process.env.EMAIL_USER,
+          subject: 'Password Reset',
+          text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
+                `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
+                `http://localhost:5000/resetPassword/${resetToken}\n\n` +
+                `If you did not request this, please ignore this email and your password will remain unchanged.\n`
+      };
+      await transporter.sendMail(mailOptions);
+      res.status(200).json({ message: 'An email has been sent to ' + user.email + ' with further instructions.' });
+
+  } catch (error) {
+      console.error('Error during forgot password process:', error);
+      res.status(500).json({ message: 'An error occurred. Please try again later.' });
+  }
+};
+
+const loadReset = async (req, res) => {
+  try {
+      const token = req.params.token; 
+      res.render('user/resetPassword', { token });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const ResetPassword = async (req, res) => {
+  try {
+    console.log(req.body,req.params.token);
+      const user = await User.findOne({
+          resetPasswordToken: req.params.token,
+          resetPasswordExpires: { $gt: Date.now() }
+      });
+
+      if (!user) {
+          return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+      }
+      
+      const newpassword = await securePassword(req.body.password)
+      user.password = newpassword 
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+
+      await user.save();
+
+      res.status(200).json({ message: 'Password has been successfully reset. You can now log in.' });
+
+  } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ message: 'An error occurred. Please try again later.' });
+  }
+};
+
+
+
+
 module.exports = {
   securePassword,
   loadRegister,
@@ -511,7 +696,6 @@ module.exports = {
   verifyOtp,
   loadOtp,
   resendOTP,
-  // checkout,
   shope,
   singleproduct,
   loadeProfile,
@@ -522,4 +706,9 @@ module.exports = {
   getAddress,
   EditAddress,
   DeleteAddress,
+  LoadforgetPassword,
+  forgetPassword,
+  loadReset,
+  ResetPassword,
+ 
 };

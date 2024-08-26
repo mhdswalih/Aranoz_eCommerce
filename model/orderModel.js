@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const OrderSchema = mongoose.Schema({
   OID: {
@@ -8,16 +8,21 @@ const OrderSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: "User",
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+  },
+ 
   products: [
     {
       productId: {
         type: mongoose.Types.ObjectId,
         ref: "Product",
       },
-      quantity: {
+      productquantity: {
         type: Number,
       },
-      subTotal: {
+      totalAmount: {
         type: Number,
       },
       status: {
@@ -68,12 +73,19 @@ const OrderSchema = mongoose.Schema({
   couponMaxRedeem: {
     type: Number,
   },
-  orderStatus :{
-    enum : [
-     "Pending","Shipped","Deliverd","Cancel"
-     ],
-     default : "Pending",
-     type : String,
+  razorpayOrderId: { type: String },
+  razorpayPaymentId: { type: String },
+  razorpaySignature: { type: String },
+  paymentStatus: {
+    type: String,
+    enum: ["Pending", "Paid", "Failed"],
+    default: "Pending",
+  },
+  paymentVerifiedAt: { type: Date },
+  orderStatus: {
+    enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
+    default: "Pending",
+    type: String,
   },
   couponOfferPercent: {
     type: Number,
@@ -83,6 +95,6 @@ const OrderSchema = mongoose.Schema({
   },
 });
 
-const Order = mongoose.model('Order', OrderSchema);
+const Order = mongoose.model("Order", OrderSchema);
 
 module.exports = Order;

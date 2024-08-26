@@ -3,7 +3,7 @@
   <%-include('../layout/usernav')%>
   <!-- Header part end-->
 
-
+  <div id="snackbar"></div>
   <!--================Home Banner Area =================-->
   <!-- breadcrumb start-->
   <section class="breadcrumb breadcrumb_bg">
@@ -46,7 +46,7 @@
                     <td>
                       <div class="media">
                         <div class="d-flex">
-                          <img style="width: 80px;height: 80px;" src="/products/<%= product.productId.image1 %>" alt="" />
+                          <img style="width: 80px;height: 80px;" src="/products/<%= product.productId.image1%>" alt="" />
                         </div>
                         <div class="media-body">
                           <p><%= product.productId.productname%></p>
@@ -67,14 +67,9 @@
                       <h5>₹<%= product.productId.productprice * product.productquantity %></h5>
                     </td>
                     <td>
-                      <div class="dropdown">
-                        <button class="btn btn-white dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <!-- Dropdown button content -->
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item remove-cart-button"  href="#" onclick="removeFromCart('<%= product._id %>')">Remove</a>
-                        </div>
-                      </div>
+                     
+                          <a class="dropdown-item remove-cart-button"  href="#" onclick="removeFromCart('<%= product._id %>')"><i class="bi-trash"></i></a>
+                        
                       
                     </td>
                   </tr>
@@ -86,13 +81,13 @@
               <% } %>
               <tr class="bottom_button">
                 <td>
-                  <a class="btn_1" href="#">Update Cart</a>
+                  <!-- <a class="btn_1" href="#">Update Cart</a> -->
                 </td>
                 <td></td>
                 <td></td>
                 <td>
                   <div class="cupon_text float-right">
-                    <a class="btn_1" href="#">Close Coupon</a>
+                    <!-- <a class="btn_1" href="#">Close Coupon</a> -->
                   </div>
                 </td>
               </tr>
@@ -103,14 +98,14 @@
                   <h5>Subtotal</h5>
                 </td>
                 <td>
-                  <h5>₹<%= cart.products.reduce((acc, product) => acc + (product.productId.price * product.productquantity), 0) %></h5>
+                  <h5>₹<%= cart.products.reduce((sum, product) => sum + (Number(product.productId.productprice) * Number(product.productquantity)), 0) %></h5>
                 </td>
               </tr>
               <tr class="shipping_area">
                 <td></td>
                 <td></td>
                 <td>
-                  <h5>Shipping</h5>
+                  <!-- <h5>Shipping</h5> -->
                 </td>
                 <td>
                   <div class="shipping_box">
@@ -142,16 +137,16 @@
                       <option value="2">Select a State</option>
                       <option value="4">Select a State</option>
                     </select> -->
-                    <input type="text" placeholder="Postcode/Zipcode" />
-                    <a class="btn_1" href="#">Update Details</a>
+                    <!-- <input type="text" placeholder="Postcode/Zipcode" />
+                    <a class="btn_1" href="#">Update Details</a> -->
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
           <div class="checkout_btn_inner float-right">
-            <a class="btn_1" href="#">Continue Shopping</a>
-            <a class="btn_1 checkout_btn_1" href="/checkout">Proceed to checkout</a>
+             <a class="btn_1" href="/shope">Continue Shopping</a>
+            <a class="btn_1 checkout_btn_1" href="/checkout">Proceed to checkout</a> 
           </div>
         </div>
       </div>

@@ -34,6 +34,48 @@
 
 
 <style>
+
+#snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #ff3368;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+#snackbar.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;} 
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;} 
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
     .cart {
       font-weight: bold;
       color: black;
@@ -116,11 +158,15 @@
     background-color: #f8f9fa;
     color: black;
   }
+  
   </style>
   <body>
   
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <header class="main_menu home_menu">
+  <div id="showSnackbar"></div>   
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-12">
@@ -138,13 +184,13 @@
                                 <a class="nav-link" href="/home">Home</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_1"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a href="/shope" class="nav-link "  
+                                    role="button" >
                                     Shop
                                 </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown_1">
+                                <!-- <div class="dropdown-menu" aria-labelledby="navbarDropdown_1">
                                     <a class="dropdown-item" href="/shope">Shop Category</a>
-                                </div>
+                                </div> -->
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_3"
@@ -195,7 +241,7 @@
                             <% } %>
                         </div>
                         <a id="search_1" href="javascript:void(0)"><i class="bi bi-search"></i></a>
-                        <a href=""><i class="bi bi-heart"></i></a>
+                        <a href="/wishlist"><i class="bi bi-heart"></i></a>
                         <div class="dropdown cart">
                             <a class="nav-link" href="/cart">
                                 <i class="bi bi-cart cart"></i>

@@ -2371,73 +2371,78 @@
 
 // Trigger
 
-$(function () {
-  
-var $range = $(".js-range-slider"),
-    $inputFrom = $(".js-input-from"),
-    $inputTo = $(".js-input-to"),
-    instance,
-    min = 0,
-    max = 1000,
-    from = 10,
-    to = 100;
+(function () {
+    var $range = $(".js-range-slider"),
+        $inputFrom = $(".js-input-from"),
+        $inputTo = $(".js-input-to"),
+        $minPrice = $(".js-min-price"),
+        $maxPrice = $(".js-max-price"),
+        instance,
+        min = 500,
+        max = 70000,
+        from = min,
+        to = 10000;
 
-$range.ionRangeSlider({
-    type: "double",
-    min: min,
-    max: max,
-    from: 0,
-    to: 500,
-  prefix: 'tk. ',
-    onStart: updateInputs,
-    onChange: updateInputs,
-    step: 1,
-    prettify_enabled: true,
-    prettify_separator: ".",
-  values_separator: " - ",
-  force_edges: true
-  
+    $range.ionRangeSlider({
+        type: "double",
+        min: min,
+        max: max,
+        from: from,
+        to: to,
+        prefix: 'tk. ',
+        onStart: function (data) {
+            updateInputs(data);
+        },
+        onChange: function (data) {
+            updateInputs(data);
+        },
+        step: 1,
+        prettify_enabled: true,
+        prettify_separator: ".",
+        values_separator: " - ",
+        force_edges: true
+    });
 
-});
+    instance = $range.data("ionRangeSlider");
 
-instance = $range.data("ionRangeSlider");
+    function updateInputs(data) {
+        from = data.from || min;
+        to = data.to || max;
 
-function updateInputs (data) {
-    from = data.from;
-    to = data.to;
-    
-    $inputFrom.prop("value", from);
-    $inputTo.prop("value", to); 
-}
-
-$inputFrom.on("input", function () {
-    var val = $(this).prop("value");
-    
-    // validate
-    if (val < min) {
-        val = min;
-    } else if (val > to) {
-        val = to;
+        $inputFrom.prop("value", from);
+        $inputTo.prop("value", to);
+        $minPrice.prop("value", from); // Update the hidden input for min price
+        $maxPrice.prop("value", to);   // Update the hidden input for max price
     }
-    
-    instance.update({
-        from: val
-    });
-});
 
-$inputTo.on("input", function () {
-    var val = $(this).prop("value");
-    
-    // validate
-    if (val < from) {
-        val = from;
-    } else if (val > max) {
-        val = max;
-    }
-    
-    instance.update({
-        to: val
-    });
-});
+    $inputFrom.on("input", function () {
+        var val = parseInt($(this).prop("value"), 10);
 
+        // Validate and update the range
+        if (isNaN(val) || val < min) {
+            val = min;
+        } else if (val > to) {
+            val = to;
+        }
+
+        instance.update({
+            from: val
+        });
     });
+
+    $inputTo.on("input", function () {
+        var val = parseInt($(this).prop("value"), 10);
+
+        // Validate and update the range
+        if (isNaN(val) || val < from) {
+            val = from;
+        } else if (val > max) {
+            val = max;
+        }
+
+        instance.update({
+            to: val
+        });
+    });
+
+})();
