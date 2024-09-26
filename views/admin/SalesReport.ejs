@@ -1,111 +1,100 @@
 <%- include('../layout/adminheder') %>
 
-  <nav class="navbar p-0 fixed-top d-flex flex-row">
-    <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-      <a class="navbar-brand brand-logo-mini" href="/admin/home"><img src="/Admin assets/assets/images/logo-mini.svg" alt="logo" /></a>
-    </div>
-    <div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
-      <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-        <span class="mdi mdi-menu"></span>
-      </button>
-    
-     
-      <ul class="navbar-nav navbar-nav-right">
-        <li class="nav-item dropdown d-none d-lg-block">
-          <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" href="/admin/download-Pdf">+ Pdf Download</a>
-        </li>
-        <li>
-          <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" href="/admin/download-excel">+ Excele Download </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+<nav class="navbar p-0 fixed-top d-flex flex-row">
+  <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
+    <a class="navbar-brand brand-logo-mini" href="/admin/home"><img src="/Admin assets/assets/images/logo-mini.svg" alt="logo" /></a>
+  </div>
+  <div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
+    <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+      <span class="mdi mdi-menu"></span>
+    </button>
+    <ul class="navbar-nav navbar-nav-right">
+      <li class="nav-item dropdown d-none d-lg-block">
+        <a class="nav-link btn btn-danger create-new-button pdf-btn" id="download-pdf" href="#">+ Pdf Download</a>
+      </li>
+      <li>
+        <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" href="/admin/download-excel">+ Excel Download</a>
+      </li>
+    </ul>
+  </div>
+</nav>
 
-  <div class="main-panel">
-    <div class="content-wrapper">
-      <div class="col-lg-12 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">Sales Report</h4>
-            <p>Total Sales: <%= totalSale %></p>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Sales Report</h4>
 
-           <!-- Date Filter -->
-<div class="date-filter">
-  <form action="/admin/sales-report" method="get" class="form-inline">
-    <!-- Year Dropdown -->
-    <div class="form-group">
-      <label for="year">Year:</label>
-      <select id="year" name="year" class="form-control ml-2">
-        <% for (let i = new Date().getFullYear(); i >= 2000; i--) { %>
-          <option value="<%= i %>"><%= i %></option>
-        <% } %>
-      </select>
-    </div>
+          <!-- Calculate total sales -->
+          <%
+            let totalSales = 0;
+            SalesReport.forEach(sale => {
+              totalSales += sale.totalAmount; // Sum the total amounts
+            });
+            const totalLength = SalesReport.length; // Get the length of the sales report
+          %>
+          <p>Total Sales: ₹<%= totalSales.toFixed(2) %></p>
+          <p>Total Number of Sales: <%= totalLength %></p>
 
-    <!-- Month Dropdown -->
-    <div class="form-group ml-2">
-      <label for="month">Month:</label>
-      <select id="month" name="month" class="form-control ml-2">
-        <% const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; %>
-        <% months.forEach((month, index) => { %>
-          <option value="<%= index + 1 %>"><%= month %></option>
-        <% }); %>
-      </select>
-    </div>
+          <!-- Date Range Filter -->
+          <div class="date-filter mb-4">
+            <form action="/admin/sales-report" method="get" class="form-inline">
+              <div class="form-group">
+                <label for="startDate" class="mr-2">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" class="form-control ml-2" required>
+              </div>
 
-    <!-- Day Dropdown -->
-    <div class="form-group ml-2">
-      <label for="day">Day:</label>
-      <select id="day" name="day" class="form-control ml-2">
-        <% for (let i = 1; i <= 31; i++) { %>
-          <option value="<%= i %>"><%= i %></option>
-        <% } %>
-      </select>
-    </div>
+              <div class="form-group mx-3">
+                <label for="endDate" class="mr-2">End Date:</label>
+                <input type="date" id="endDate" name="endDate" class="form-control ml-2" required>
+              </div>
 
-    <button type="submit" class="btn btn-success ml-2">Filter</button>
-  </form>
-</div>
-
-
-            <!-- Sales Table -->
-            <div class="table-responsive">
-              <table class="table table-dark table-striped">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Billing Name</th>
-                    <th>Total Price</th>
-                    <th>Discount Price</th>
-                    <th>Payment Method</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% if (SalesReport.length > 0) { %>
-                    <% SalesReport.forEach((sale, index) => { %>
-                      <tr>
-                        <td><%= index + 1 %></td>
-                        <td><%= new Date(sale.orderDate).toLocaleDateString() %></td>
-                        <td><%= sale.product.productname %></td>
-                        <td><%= sale.products.productquantity %></td>
-                        <td><%= sale.user.name %></td>
-                        <td>₹<%= sale.totalAmount.toFixed(2) %></td>
-                        <td>₹<%= sale.discountAmount ? sale.discountAmount.toFixed(2) : '0.00' %></td>
-                        <td><%= sale.selectedPaymentMethod %></td>
-                      </tr>
-                    <% }); %>
-                  <% } else { %>
-                    <tr>
-                      <td colspan="8" class="text-center">No sales records found</td>
-                    </tr>
-                  <% } %>
-                </tbody>
-              </table>
-            </div>
+              <button type="submit" class="btn btn-success">Filter</button>
+            </form>
           </div>
+          <div id="errSale" style="color: red;"></div>
+
+          <!-- Sales Table -->
+          <div class="table-responsive">
+            <table class="table table-dark table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Billing Name</th>
+                  <th>Total Price</th>
+                  <th>Discount Price</th>
+                  <th>Payment Method</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (SalesReport.length > 0) { %>
+                  <% SalesReport.forEach((sale, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td><%= new Date(sale.orderDate).toLocaleDateString() %></td>
+                      <td><%= sale.product.productname %></td>
+                      <td><%= sale.products.productquantity %></td>
+                      <td><%= sale.user.name %></td>
+                      <td>₹<%= sale.totalAmount.toFixed(2) %></td>
+                      <td>₹<%= sale.discountAmount ? sale.discountAmount.toFixed(2) : '0.00' %></td>
+                      <td><%= sale.selectedPaymentMethod %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="8" class="text-center">No sales records found</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div class="loading-spinner" style="display: none;">Loading...</div>
         </div>
       </div>
     </div>
@@ -114,37 +103,118 @@
 
 <%- include('../layout/adminfooter') %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-
 <script>
-  // Spinner on form submission
-  document.querySelector('form').addEventListener('submit', function() {
-    document.querySelector('.loading-spinner').style.display = 'block';
+  document.querySelector('#download-pdf').addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const err = document.querySelector('#errSale');
+      const startDate = document.querySelector('#startDate').value;
+      const endDate = document.querySelector('#endDate').value;
+
+      // Clear any previous errors
+      err.innerHTML = '';
+
+      // Date validation to ensure start date is not after end date
+      if (!startDate || !endDate) {
+          err.innerHTML = 'Please select both start and end dates.';
+          return;
+      }
+
+      if (new Date(startDate) > new Date(endDate)) {
+          err.innerHTML = 'Start date cannot be after end date.';
+          return;
+      }
+
+      // Show the loading spinner after validation is successful
+      document.querySelector('.loading-spinner').style.display = 'block';
+
+      // Send the request to the backend via fetch for PDF
+      try {
+          const response = await fetch(`/admin/download-Pdf?startDate=${startDate}&endDate=${endDate}`, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+
+          if (!response.ok) {
+              const data = await response.json();
+              err.innerHTML = data.message || 'An error occurred while generating the PDF';
+              return;
+          }
+
+          // Redirect to the PDF URL to download it
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'sales_report.pdf';
+          document.body.appendChild(a); // Append the link to the document
+          a.click(); // Programmatically trigger the download
+          a.remove(); // Remove the link after download
+
+      } catch (error) {
+          err.innerHTML = 'Error fetching PDF';
+          console.error('Error:', error);
+      } finally {
+          document.querySelector('.loading-spinner').style.display = 'none';
+      }
   });
 
-  // Date validation to ensure start date is not after end date
-  document.querySelector('form').addEventListener('submit', function(e) {
-  const year = document.querySelector('#year').value;
-  const month = document.querySelector('#month').value;
-  const day = document.querySelector('#day').value;
+  document.querySelector('#createbuttonDropdown').addEventListener('click', async function(e) {
+      e.preventDefault();
 
-  if (!year || !month || !day) {
-    e.preventDefault();
-    Swal.fire({
-      icon: 'error',
-      title: 'Invalid Date Selection',
-      text: 'Please select a valid year, month, and day.'
-    });
-  }
-});
+      const err = document.querySelector('#errSale');
+      const startDate = document.querySelector('#startDate').value;
+      const endDate = document.querySelector('#endDate').value;
 
+      // Clear any previous errors
+      err.innerHTML = '';
 
-  // SweetAlert for no sales records
-  if (SalesReport.length === 0) { 
-    Swal.fire({
-      icon: 'info',
-      title: 'No Sales Records',
-      text: 'No sales records found for the selected date range.',
-      confirmButtonText: 'Okay'
-    });
-  }
+      // Date validation to ensure start date is not after end date
+      // if (!startDate || !endDate) {
+      //     err.innerHTML = 'Please select both start and end dates.';
+      //     return;
+      // }
+
+      // if (new Date(startDate) > new Date(endDate)) {
+      //     err.innerHTML = 'Start date cannot be after end date.';
+      //     return;
+      // }
+
+      // Show the loading spinner after validation is successful
+      document.querySelector('.loading-spinner').style.display = 'block';
+
+      // Send the request to the backend via fetch for Excel
+      try {
+          const response = await fetch(`/admin/download-excel?startDate=${startDate}&endDate=${endDate}`, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+
+          if (!response.ok) {
+              const data = await response.json();
+              err.innerHTML = data.message || 'An error occurred while generating the Excel file';
+              return;
+          }
+
+          // Redirect to the Excel URL to download it
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'sales_report.xlsx';
+          document.body.appendChild(a); // Append the link to the document
+          a.click(); // Programmatically trigger the download
+          a.remove(); // Remove the link after download
+
+      } catch (error) {
+          err.innerHTML = 'Error fetching Excel file';
+          console.error('Error:', error);
+      } finally {
+          document.querySelector('.loading-spinner').style.display = 'none';
+      }
+  });
 </script>

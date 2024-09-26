@@ -2,88 +2,27 @@
 const PDFDocument = require('pdfkit'); 
 const ExcelJS = require('exceljs'); 
 const Wallet = require('../model/walletModel');
-const order = require('../model/orderModel')
+const order = require('../model/orderModel');
 
 const loadSalesReport = async (req, res) => {
     try {
-      const { year, month, day } = req.query;
-  
-      let query = { 'products.orderStatus': 'Delivered' };
-  
+        const { startDate, endDate } = req.query;
 
-      if (year && month && day) {
-        const startDate = new Date(year, month - 1, day);  
-        const endDate = new Date(year, month - 1, day, 23, 59, 59);  
-        query.orderDate = {
-          $gte: startDate,
-          $lte: endDate
-        };
-      } else if (year && month) {
-        const startDate = new Date(year, month - 1, 1); 
-        const endDate = new Date(year, month, 0, 23, 59, 59);  
-        query.orderDate = {
-          $gte: startDate,
-          $lte: endDate
-        };
-      } else if (year) {
-        const startDate = new Date(year, 0, 1);  
-        const endDate = new Date(year, 11, 31, 23, 59, 59);  
-        query.orderDate = {
-          $gte: startDate,
-          $lte: endDate
-        };
-      }
-  
-      let SalesReport = await order.aggregate([
-        {
-          $lookup: {
-            from: "users",
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'user'
-          }
-        },
-        { $unwind: '$user' },
-        { $unwind: '$products' },
-        {
-          $lookup: {
-            from: "products",
-            localField: 'products.productId',
-            foreignField: '_id',
-            as: 'product'
-          }
-        },
-        { $unwind: '$product' },
-        { $match: query },
-        { $sort: { 'orderDate': -1 } },
-        {
-          $project: {
-            _id: 1,
-            orderDate: 1,
-            'product.productname': 1,
-            'products.productquantity': 1,
-            'user.name': 1,
-            totalAmount: 1,
-            discountAmount: 1,
-            selectedPaymentMethod: 1  
-          }
+        let query = { 'products.orderStatus': 'Delivered' };
+
+        // Check if both startDate and endDate are provided
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            // Set the end date to the end of the day
+            end.setHours(23, 59, 59, 999);
+
+            query.orderDate = {
+                $gte: start,
+                $lte: end
+            };
         }
-      ]);
-  
-      let totalSale = SalesReport.length;
-      res.render('admin/SalesReport', { SalesReport, totalSale });
-    } catch (error) {
-      console.error("Error loading sales report:", error);
-      res.status(500).send('Server error');
-    }
-  };
-  
-  
 
-// downloadPdf
-
-const downloadPdf = async (req, res) => {
-    try {
         let SalesReport = await order.aggregate([
             {
                 $lookup: {
@@ -93,12 +32,8 @@ const downloadPdf = async (req, res) => {
                     as: 'user'
                 }
             },
-            {
-                $unwind: '$user'
-            },
-            {
-                $unwind: '$products'
-            },
+            { $unwind: '$user' },
+            { $unwind: '$products' },
             {
                 $lookup: {
                     from: "products",
@@ -107,45 +42,99 @@ const downloadPdf = async (req, res) => {
                     as: 'product'
                 }
             },
-            {
-                $unwind: '$product'
-            },
-            {
-                $match: { 'products.orderStatus': 'Delivered' }
-                
-            },
-            {
-                $sort: { 'orderDate': -1 }
-            },
+            { $unwind: '$product' },
+            { $match: query },
+            { $sort: { 'orderDate': -1 } },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     orderDate: 1,
                     'product.productname': 1,
                     'products.productquantity': 1,
                     'user.name': 1,
                     totalAmount: 1,
-                    discountPrice: 1,
-                    selectedPaymentMethod: 1
+                    discountAmount: 1,
+                    selectedPaymentMethod: 1  
+                }
+            }
+        ]);
+
+        console.log('this is sales report', SalesReport);
+        
+        let totalSale = SalesReport.length;
+        res.render('admin/SalesReport', { SalesReport, totalSale });
+    } catch (error) {
+        console.error("Error loading sales report:", error);
+        res.status(500).send('Server error');
+    }
+};
+
+  
+  
+// downloadPdf
+const downloadPdf = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        let query = { 'products.orderStatus': 'Delivered' };
+
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            query.orderDate = {
+                $gte: start,
+                $lte: end
+            };
+        }
+
+        let SalesReport = await order.aggregate([
+            {
+                $lookup: {
+                    from: "users",
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            { $unwind: '$user' },
+            { $unwind: '$products' },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: 'products.productId',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
+            { $unwind: '$product' },
+            { $match: query },
+            { $sort: { 'orderDate': -1 } },
+            {
+                $project: {
+                    _id: 1,
+                    orderDate: 1,
+                    'product.productname': 1,
+                    'products.productquantity': 1,
+                    'user.name': 1,
+                    totalAmount: 1,
+                    discountAmount: 1,
+                    selectedPaymentMethod: 1  
                 }
             }
         ]);
 
         const doc = new PDFDocument({ margin: 30, size: 'A3' });
         let filename = 'Sales_Report.pdf';
-
         res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
         res.setHeader('Content-Type', 'application/pdf');
 
-        // Header
-        doc.fontSize(26).fillColor('black').text('Company Sales Report', { align: 'center' });
+        doc.fontSize(26).fillColor('#2c3e50').text('Company Sales Report', { align: 'center' });
         doc.moveDown(0.5);
-        
-        // Subtitle
         doc.fontSize(14).fillColor('gray').text('Generated by Aranoz on: ' + new Date().toLocaleDateString(), { align: 'center' });
         doc.moveDown(2);
 
-        // Table header
         const tableTop = 150;
         const columnWidths = {
             date: 70,
@@ -167,10 +156,8 @@ const downloadPdf = async (req, res) => {
             paymentMethod: 30 + columnWidths.date + columnWidths.productName + columnWidths.quantity + columnWidths.billingName + columnWidths.totalPrice + columnWidths.discountPrice
         };
 
-        // Table Header
         doc.fontSize(10).fillColor('white').rect(30, tableTop, xOffsets.paymentMethod + columnWidths.paymentMethod - 30, 20).fill('#2c3e50').stroke();
         
-        // Header Text
         doc.fillColor('white')
             .text('Date', xOffsets.date, tableTop + 5)
             .text('Product Name', xOffsets.productName, tableTop + 5)
@@ -180,18 +167,34 @@ const downloadPdf = async (req, res) => {
             .text('Discount Price', xOffsets.discountPrice, tableTop + 5)
             .text('Payment Method', xOffsets.paymentMethod, tableTop + 5);
 
-        let currentTop = tableTop + 20; // Start below the header
+        let currentTop = tableTop + 20;
         const itemsPerPage = 20;
+        let totalSalesAmount = 0;
 
         SalesReport.forEach((sale, i) => {
-            // Log sale data for debugging
-            console.log('Sale Data:', sale);
-        
+            if (i % 2 === 0) {
+                doc.fillColor('#f8f9fa').rect(30, currentTop, xOffsets.paymentMethod + columnWidths.paymentMethod - 30, 20).fill().stroke();
+            } else {
+                doc.fillColor('white').rect(30, currentTop, xOffsets.paymentMethod + columnWidths.paymentMethod - 30, 20).fill().stroke();
+            }
+
+            doc.fillColor('black')
+                .text(new Date(sale.orderDate).toLocaleDateString(), xOffsets.date, currentTop + 5)
+                .text(sale.product.productname || 'N/A', xOffsets.productName, currentTop + 5)
+                .text(sale.products.productquantity || 0, xOffsets.quantity, currentTop + 5)
+                .text(sale.user.name || 'Unknown', xOffsets.billingName, currentTop + 5)
+                .text(`₹${sale.totalAmount ? sale.totalAmount.toFixed(2) : '0.00'}`, xOffsets.totalPrice, currentTop + 5)
+                .text(`₹${sale.discountAmount ? sale.discountAmount.toFixed(2) : '0.00'}`, xOffsets.discountPrice, currentTop + 5)
+                .text(sale.selectedPaymentMethod || 'N/A', xOffsets.paymentMethod, currentTop + 5);
+
+            totalSalesAmount += sale.totalAmount || 0;
+
+            currentTop += 20;
+
             if (i > 0 && i % itemsPerPage === 0) {
                 doc.addPage();
-                currentTop = tableTop + 20; // Reset for new page
-                
-                // Repeat table header on each page
+                currentTop = tableTop + 20;
+
                 doc.fontSize(10).fillColor('white').rect(30, tableTop, xOffsets.paymentMethod + columnWidths.paymentMethod - 30, 20).fill('#2c3e50').stroke();
                 doc.fillColor('white')
                     .text('Date', xOffsets.date, tableTop + 5)
@@ -202,27 +205,11 @@ const downloadPdf = async (req, res) => {
                     .text('Discount Price', xOffsets.discountPrice, tableTop + 5)
                     .text('Payment Method', xOffsets.paymentMethod, tableTop + 5);
             }
-        
-            // Alternate row colors
-            if (i % 2 === 0) {
-                doc.fillColor('#f8f9fa').rect(30, currentTop, xOffsets.paymentMethod + columnWidths.paymentMethod - 30, 20).fill().stroke();
-            }
-        
-            // Data rows
-            doc.fillColor('black').text(new Date(sale.orderDate).toLocaleDateString(), xOffsets.date, currentTop + 5);
-            doc.text(sale.product.productname || 'N/A', xOffsets.productName, currentTop + 5);
-            doc.text(sale.products.productquantity || 0, xOffsets.quantity, currentTop + 5);
-            doc.text(sale.user.name || 'Unknown', xOffsets.billingName, currentTop + 5);
-            doc.text(`₹${sale.totalAmount ? sale.totalAmount.toFixed(2) : '0.00'}`, xOffsets.totalPrice, currentTop + 5);
-            doc.text(`₹${sale.discountPrice ? sale.discountPrice.toFixed(2) : '-'}`, xOffsets.discountPrice, currentTop + 5);            
-            doc.text(sale.selectedPaymentMethod || 'N/A', xOffsets.paymentMethod, currentTop + 5);
-            
-            currentTop += 20; // Move to the next row
         });
 
-        // Final branding statement
         doc.moveDown(2);
-        doc.fontSize(12).fillColor('gray').text('', { align: 'center' });
+        doc.fontSize(12).fillColor('black').text(`Total Sales Amount: ₹${totalSalesAmount.toFixed(2)}`, { align: 'center' }, xOffsets.totalPrice, currentTop);
+
 
         doc.pipe(res);
         doc.end();
@@ -232,9 +219,24 @@ const downloadPdf = async (req, res) => {
     }
 };
 
+    
 const downloadExcel = async (req, res) => {
     try {
-        // Fetch data
+        const { startDate, endDate } = req.query;
+
+        let query = { 'products.orderStatus': 'Delivered' };
+
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            query.orderDate = {
+                $gte: start,
+                $lte: end
+            };
+        }
+
         let SalesReport = await order.aggregate([
             {
                 $lookup: {
@@ -244,12 +246,8 @@ const downloadExcel = async (req, res) => {
                     as: 'user'
                 }
             },
-            {
-                $unwind: '$user'
-            },
-            {
-                $unwind: '$products' 
-            },
+            { $unwind: '$user' },
+            { $unwind: '$products' },
             {
                 $lookup: {
                     from: "products",
@@ -258,35 +256,28 @@ const downloadExcel = async (req, res) => {
                     as: 'product'
                 }
             },
-            {
-                $unwind: '$product'
-            },
-            {
-                $match: { 'products.orderStatus': 'Delivered' }
-            },
-            {
-                $sort: { 'orderDate': -1 }
-            },
+            { $unwind: '$product' },
+            { $match: query },
+            { $sort: { 'orderDate': -1 } },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     orderDate: 1,
                     'product.productname': 1,
                     'products.productquantity': 1,
                     'user.name': 1,
-                    'product.productprice': 1, // Include product price
-                    'product.discountedPrice': 1, // Include discounted price
                     totalAmount: 1,
-                    selectedPaymentMethod: 1
+                    discountAmount: 1,
+                    selectedPaymentMethod: 1  
                 }
             }
         ]);
 
-        // Create a new workbook and add a worksheet
+        // Create an Excel workbook and worksheet
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
 
-        // Define columns
+        // Define columns for the Excel file
         worksheet.columns = [
             { header: 'Date', key: 'date', width: 15 },
             { header: 'Product Name', key: 'productName', width: 30 },
@@ -297,39 +288,43 @@ const downloadExcel = async (req, res) => {
             { header: 'Payment Method', key: 'paymentMethod', width: 20 }
         ];
 
-        // Add rows
-        let totalDiscountAmount = 0;
+        let totalSalesAmount = 0;
 
+        // Process each sale in the SalesReport
         SalesReport.forEach(sale => {
-            const product = sale.product; 
-            const unitPrice = product.productprice || 0; 
-            const quantity = sale.products.productquantity || 0; 
-            const totalPrice = unitPrice * quantity;
-        
-            const discountPrice = product.discountedPrice && product.discountedPrice < unitPrice
-                ? product.discountedPrice * quantity
-                : 0;
-        
-            const discountAmount = discountPrice > 0 ? totalPrice - discountPrice : 0;
-            totalDiscountAmount += discountAmount;
-        
+            const totalPrice = sale.totalAmount || 0;
+            const discountPrice = sale.discountAmount || 0;
+
+            totalSalesAmount += totalPrice;
+
+            // Add row to the worksheet
             worksheet.addRow({
                 date: new Date(sale.orderDate).toLocaleDateString(),
-                productName: product.productname.length > 15 ? product.productname.substring(0, 15) + '...' : product.productname,
-                quantity: quantity,
-                billingName: sale.user.name,
+                productName: sale.product.productname || 'N/A',
+                quantity: sale.products.productquantity || 0,
+                billingName: sale.user.name || 'Unknown',
                 totalPrice: `₹${totalPrice.toFixed(2)}`,
-                discountPrice: discountPrice > 0 ? `₹${discountPrice.toFixed(2)}` : '-',
-                paymentMethod: sale.selectedPaymentMethod
+                discountPrice: `₹${discountPrice.toFixed(2)}`,
+                paymentMethod: sale.selectedPaymentMethod || 'N/A'
             });
         });
-        
+
+        // Add a total row at the end of the worksheet
+        worksheet.addRow({
+            date: 'Total',
+            productName: '',
+            quantity: '',
+            billingName: '',
+            totalPrice: `₹${totalSalesAmount.toFixed(2)}`,
+            discountPrice: '',
+            paymentMethod: ''
+        });
 
         // Set response headers for file download
         res.setHeader('Content-Disposition', 'attachment; filename=Sales_Report.xlsx');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        
-        
+
+        // Write to the response
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
@@ -337,6 +332,7 @@ const downloadExcel = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
 
 const loadWallet = async (req, res) => {
     try {
