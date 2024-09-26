@@ -30,7 +30,104 @@
 
 <body>
     <!--::header part start::-->
-    <%-include('../layout/usernav')%>
+      
+<header class="main_menu home_menu">
+    <div id="showSnackbar"></div>   
+      <div class="container">
+          <div class="row align-items-center">
+              <div class="col-lg-12">
+                  <nav class="navbar navbar-expand-lg navbar-light">
+                      <a class="navbar-brand" href="/home"> <img src="/img/logo.png" alt="logo"> </a>
+                      <button class="navbar-toggler" type="button" data-toggle="collapse"
+                          data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                          aria-expanded="false" aria-label="Toggle navigation">
+                          <span class="menu_icon"><i class="bi bi-list"></i></span>
+                      </button>
+  
+                      <div class="collapse navbar-collapse main-menu-item" id="navbarSupportedContent">
+                          <ul class="navbar-nav mr-auto">
+                              <li class="nav-item">
+                                  <a style="color: black;" class="nav-link" href="/home">Home</a>
+                              </li>
+                              <li class="nav-item dropdown">
+                                  <a style="color: black;" href="/shope" class="nav-link "  
+                                      role="button" >
+                                      Shop
+                                  </a>
+                                  <!-- <div class="dropdown-menu" aria-labelledby="navbarDropdown_1">
+                                      <a class="dropdown-item" href="/shope">Shop Category</a>
+                                  </div> -->
+                              </li>
+                              <li class="nav-item dropdown">
+                                  <a style="color: black;" class="nav-link dropdown-toggle" href="#" id="navbarDropdown_3"
+                                      role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      Pages
+                                  </a>
+                                  <div class="dropdown-menu" aria-labelledby="navbarDropdown_3">
+                                      <% if (!user) { %>
+                                      <a class="dropdown-item" href="/login">Login</a>
+                                      <a class="dropdown-item" href="/signup">Signup</a>
+                                      <% } %>
+                                   
+                                      <a class="dropdown-item" href="/cart">Shopping Cart</a>
+                                     
+                                  </div>
+                              </li>
+                              <li class="nav-item dropdown">
+                                  <a style="color: black;" class="nav-link dropdown-toggle" href="#" id="navbarDropdown_2"
+                                      role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      Blog
+                                  </a>
+                                  <div class="dropdown-menu" aria-labelledby="navbarDropdown_2">
+                                      <a class="dropdown-item" href="/views/user/blog.html">Blog</a>
+                                      <a class="dropdown-item" href="/views/user/single-blog.html">Single Blog</a>
+                                  </div>
+                              </li>
+                              <li class="nav-item">
+                                  <a style="color: black;" class="nav-link" href="/views/user/contact.html">Contact</a>
+                              </li>
+                          </ul>
+                      </div>
+                      <div class="hearer_icon d-flex">
+                          <div class="nav-item dropdown">
+                              <% if (user) { %>
+                              <p class="nav-link dropdown-toggle" style="font-weight: 400;" id="navbarDropdown_3"
+                                  role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  <i class="bi bi-person-circle"></i> <%= user.name %>
+                              </p>
+                              <div class="dropdown-menu" aria-labelledby="navbarDropdown_3">
+                                  <a class="dropdown-item" href="/Profile">
+                                      <i class="bi bi-person"></i> Profile
+                                  </a>
+                                  <a class="dropdown-item" href="/logout">
+                                      <i class="bi bi-box-arrow-right"></i> Logout
+                                  </a>
+                              </div>
+                              <% } %>
+                          </div>
+                          <a style="color: black;" id="search_1" href="javascript:void(0)"><i class="bi bi-search"></i></a>
+                          <a style="color: black;" href="/wishlist"><i style="color: black;" class="bi bi-heart"></i></a>
+                          <div  class="dropdown cart">
+                              <a style="color: black;" class="nav-link" href="/cart">
+                                  <i style="color: black;" class="bi bi-cart cart"></i>
+                                </a>
+                          </div>
+                      </div>
+                  </nav>
+              </div>
+          </div>
+      </div>
+      <div class="search_input" id="search_input_box">
+          <div class="container">
+              <form class="d-flex justify-content-between search-inner">
+                  <input type="text" class="form-control" id="search_input" placeholder="Search Here">
+                  <button style="color: black;" type="submit" class="btn btn-primary">Search</button>
+                  <span class="bi bi-x" id="close_search" title="Close Search"></span>
+              </form>
+          </div>
+      </div>
+  </header>
+  
     <!-- Header part end-->
                 <div id="showSnackbar"></div>                                                                                                                                                                                                                                                                            
     <!-- banner part start-->
@@ -138,7 +235,7 @@
                 <div class="col-lg-5 col-sm-6">
                     <div class="single_feature_post_text" id="img-2">
                         <p>Premium Quality</p>
-                        <h3>Latest foam Sofa</h3>
+                        <h3>Sauvag</h3>
                         <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
                         <img src="img/img/" alt="">
                     </div>
@@ -170,7 +267,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-12">
                     <div class="section_tittle text-center">
-                        <h2>awesome <span>shop</span></h2>
+                        <h2>Best Selling <span>Products</span></h2>
                     </div>
                 </div>
             </div>
@@ -179,170 +276,19 @@
                     <div class="product_list_slider owl-carousel">
                         <div class="single_product_list_slider">
                             <div class="row align-items-center justify-content-between">
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_1.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
+                                <% productDetails.forEach(product => { %>
+                                    <div class="col-lg-3 col-sm-6">
+                                        <div class="single_product_item">
+                                             <a href="/single-product/<%= product._id %>">
+                                                <img src="/products/<%= product.image1 %>" alt="<%= product.productname %>" class="img-fluid">
+                                                  </a>
+                                            <div class="single_product_text">
+                                                <h4><%= product.productname %></h4>
+                                                <h3>RS.<%= product.productprice %></h3>
+                                            </div>   
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_2.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_3.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_4.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_5.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_6.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/img/pexels-valeriya-965731.jpg" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_8.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="single_product_list_slider">
-                            <div class="row align-items-center justify-content-between">
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_1.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_2.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_3.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_4.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_5.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_6.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_7.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="img/product/product_8.png" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
+                                <% }) %>
                             </div>
                         </div>
                     </div>
@@ -350,6 +296,7 @@
             </div>
         </div>
     </section>
+    
     <!-- product_list part start-->
 
     <!-- awesome_shop start-->
@@ -388,51 +335,33 @@
     <!-- awesome_shop part start-->
 
     <!-- product_list part start-->
-    <section class="product_list best_seller section_padding">
+    <section class="product_list section_padding">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-12">
                     <div class="section_tittle text-center">
-                        <h2>Best Sellers <span>shop</span></h2>
+                        <h2>Awesome <span>Products</span></h2>
                     </div>
                 </div>
             </div>
-            <div class="row align-items-center justify-content-between">
+            <div class="row">
                 <div class="col-lg-12">
-                    <div class="best_product_slider owl-carousel">
-                        <div class="single_product_item">
-                            <img src="img/product/product_1.png" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="img/product/product_2.png" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="img/product/product_3.png" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="img/product/product_4.png" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="img/product/product_5.png" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
+                    <div class="product_list_slider owl-carousel">
+                        <div class="single_product_list_slider">
+                            <div class="row align-items-center justify-content-between">
+                                <% productDetails.forEach(product => { %>
+                                    <div class="col-lg-3 col-sm-6">
+                                        <div class="single_product_item">
+                                             <a href="/single-product/<%= product._id %>">
+                                                <img src="/products/<%= product.image2 %>" alt="<%= product.productname %>" class="img-fluid">
+                                                  </a>
+                                            <div class="single_product_text">
+                                                <h4><%= product.productname %></h4>
+                                                <h3>RS.<%= product.productprice %></h3>
+                                            </div>   
+                                        </div>
+                                    </div>
+                                <% }) %>
                             </div>
                         </div>
                     </div>

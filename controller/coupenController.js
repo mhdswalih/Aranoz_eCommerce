@@ -1,4 +1,4 @@
-const { findById } = require("../model/adminModel");
+
 const Copon = require("../model/couponModel");
 
 //load copon
@@ -14,47 +14,49 @@ const loadCopon = async (req, res) => {
   
 //addCopon
 const addCoupon = async (req, res) => {
-    try {
-      const { coupon, maxPrice, minPrice, validTill, discount } = req.body;
-  
-      if (!coupon || !maxPrice || !minPrice || !validTill || !discount) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
-  
-      if (discount < 0 || discount > 100) {
-        return res.status(400).json({ message: "Discount must be between 0 and 100." });
-      }
-  
-      if (minPrice > maxPrice) {
-        return res.status(400).json({ message: "Min Price cannot be greater than Max Price." });
-      }
-  
-      if (new Date(validTill) < new Date()) {
-        return res.status(400).json({ message: "Expiry date must be in the future." });
-      }
-   
-      if (!coupon.trim()) {
-        return res.status(400).json({ message: "Coupon code cannot be empty." });
-      }
-  
-      const newCoupon = new Copon({
-        couponCode: coupon.trim(),  
-        minPrice:minPrice,
-        maxRadeemAmount: maxPrice,
-        percentage: discount,
-        expiryDate: validTill,
-      });
-      await newCoupon.save();
-      res.status(201).json({ message: "Coupon added successfully!" });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({ message: "Coupon code must be unique." });
-          }
-      console.error("Error adding coupon:", error);
-      res.status(500).json({ message: "Server error", error: error.message });
+  try {
+    const { coupon, maxPrice, minPrice, validTill, discount } = req.body;
+
+    if (!coupon || maxPrice == null || minPrice == null || !validTill || discount == null) {
+      return res.status(400).json({ message: "All fields are required." });
     }
-  };
-  
+
+    if (discount < 0 || discount > 100) {
+      return res.status(400).json({ message: "Discount must be between 0 and 100." });
+    }
+
+    if (minPrice > maxPrice) {
+      return res.status(400).json({ message: "Min Price cannot be greater than Max Price." });
+    }
+
+   
+    if (new Date(validTill) < new Date()) {
+      return res.status(400).json({ message: "Expiry date must be in the future." });
+    }
+
+    if (!coupon.trim()) {
+      return res.status(400).json({ message: "Coupon code cannot be empty." });
+    }
+
+    const newCoupon = new Copon({
+      couponCode: coupon.trim(),
+      minPrice: minPrice,
+      maxRedeemAmount: maxPrice,
+      percentage: discount,
+      expiryDate: validTill,
+    });
+    await newCoupon.save();
+    res.status(201).json({ message: "Coupon added successfully!" });
+  } catch (error) {
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Coupon code must be unique." });
+    }
+    console.error("Error adding coupon:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 //Edit-copon
 
 const editcopon = async (req, res) => {
@@ -80,7 +82,7 @@ const editcopon = async (req, res) => {
         const updatedCoupon = await Copon.findByIdAndUpdate(couponId, {
             couponCode: couponCode,
             minPrice: minPrice,
-            maxRadeemAmount: maxRadeemAmount,
+            maxRedeemAmount: maxRadeemAmount,
             percentage: percentage,
             expiryDate: expiryDate,
         }, { new: true });
@@ -88,7 +90,7 @@ const editcopon = async (req, res) => {
         if (!updatedCoupon) {
             return res.json({ success: false, message: 'Coupon not found.' });
         }else{
-            console.log('this is updated coupon',updatedCoupon)
+          
             res.status(200).json({ success: true, message: 'Coupon updated successfully!' });
         }
     } catch (error) {

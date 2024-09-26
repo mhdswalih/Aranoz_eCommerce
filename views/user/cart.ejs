@@ -46,31 +46,42 @@
                     <td>
                       <div class="media">
                         <div class="d-flex">
-                          <img style="width: 80px;height: 80px;" src="/products/<%= product.productId.image1%>" alt="" />
+                          <img style="width: 80px;height: 80px;" src="/products/<%= product.productId.image1 || 'default.jpg' %>" alt="" />
                         </div>
                         <div class="media-body">
-                          <p><%= product.productId.productname%></p>
+                          <p><%= product.productId.productname || 'Unnamed Product' %></p>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <h5>₹<%= product.productId.productprice %></h5>
+                      <% if (product.discountedPrice && product.discountedPrice < product.productId.productprice) { %>
+                        <span class="original-price" style="text-decoration: line-through;">₹<%= product.productId.productprice.toFixed(2) %></span>
+                        <span>₹<%= product.discountedPrice %></span>
+                      <% } else { %>
+                        ₹<%= product.productId.productprice.toFixed(2) %>
+                      <% } %>
+                      
                     </td>
+                    
                     <td>
                       <div class="product_count">
                         <span class="input-number-decrement"> <i class="ti-angle-down" onclick="decrementCount('<%= product._id %>')"></i></span>
                         <input class="input-number" type="text" id="quantity-<%= product._id %>" value="<%= product.productquantity %>" max="5" min="1" disabled>
                         <span class="input-number-increment" onclick="incrementCount('<%= product._id %>')"> <i class="ti-angle-up"></i></span>
-                      </div>                                                                 
+                      </div>
                     </td>
                     <td>
-                      <h5>₹<%= product.productId.productprice * product.productquantity %></h5>
+                      <h5>
+                        ₹ 
+                        <% if (product.discountedPrice < product.productId.productprice) { %>
+                          <%= (product.discountedPrice * product.productquantity).toFixed(2) %>
+                        <% } else { %>
+                          <%= (product.productId.productprice * product.productquantity).toFixed(2) %>
+                        <% } %>                        
+                      </h5>
                     </td>
                     <td>
-                     
-                          <a class="dropdown-item remove-cart-button"  href="#" onclick="removeFromCart('<%= product._id %>')"><i class="bi-trash"></i></a>
-                        
-                      
+                      <a class="dropdown-item remove-cart-button" href="#" onclick="removeFromCart('<%= product._id %>')"><i class="bi-trash"></i></a>
                     </td>
                   </tr>
                 <% }); %>
@@ -79,35 +90,31 @@
                   <td colspan="5">Your cart is empty</td>
                 </tr>
               <% } %>
+              
               <tr class="bottom_button">
-                <td>
-                  <!-- <a class="btn_1" href="#">Update Cart</a> -->
-                </td>
                 <td></td>
-                <td></td>
-                <td>
-                  <div class="cupon_text float-right">
-                    <!-- <a class="btn_1" href="#">Close Coupon</a> -->
-                  </div>
-                </td>
-              </tr>
-              <tr>
                 <td></td>
                 <td></td>
                 <td>
                   <h5>Subtotal</h5>
                 </td>
                 <td>
-                  <h5>₹<%= cart.products.reduce((sum, product) => sum + (Number(product.productId.productprice) * Number(product.productquantity)), 0) %></h5>
+                  <h5>
+                    ₹<%= cart.products.reduce((sum, product) => {
+                      const productPrice = Number(product.productId.productprice) || 0;
+                      const discountedPrice = Number(product.discountedPrice) || productPrice;
+                      const quantity = Number(product.productquantity) || 0;
+                      return sum + (discountedPrice * quantity);
+                    }, 0).toFixed(2) %>
+                  </h5>
                 </td>
               </tr>
-              <tr class="shipping_area">
-                <td></td>
-                <td></td>
-                <td>
-                  <!-- <h5>Shipping</h5> -->
-                </td>
-                <td>
+            </tbody>
+            
+            
+            
+                           
+            
                   <div class="shipping_box">
                     <!-- <ul class="list">
                       <li>

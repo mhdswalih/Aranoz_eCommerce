@@ -2141,7 +2141,7 @@ ul {
 
 /* line 20, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_menu.scss */
 .main_menu .main-menu-item ul li .nav-link {
-  color: #000;
+  color: #fff;
   font-size: 15px;
   padding: 36px 23px;
   font-family: "Poppins", sans-serif;
@@ -2164,7 +2164,7 @@ ul {
 
 /* line 41, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_menu.scss */
 .main_menu #search_1 i {
-  color: #000;
+  color: #fff;
 }
 
 /* line 46, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_menu.scss */
@@ -2239,7 +2239,7 @@ ul {
 
 /* line 107, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_menu.scss */
 .main_menu a i {
-  color: #000;
+  color: #fff;
   position: relative;
   z-index: 1;
   font-size: 15px;
@@ -2257,7 +2257,7 @@ ul {
 
 /* line 124, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_menu.scss */
 .main_menu .cart i {
-  color: #000;
+  color: #fff;
   position: relative;
   z-index: 1;
   font-size: 15px;
@@ -2267,12 +2267,12 @@ ul {
 .main_menu .cart i:after {
   position: absolute;
   border-radius: 50%;
-  background-color: #f13d80;
+ 
   width: 14px;
   height: 14px;
   right: -8px;
   top: -8px;
-  content: "5";
+  content: " ";
   text-align: center;
   line-height: 15px;
   font-size: 10px;
@@ -7560,7 +7560,7 @@ h6 {
 
 /* line 10, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_breadcrumb.scss */
 .breadcrumb .breadcrumb_iner {
-  height: 475px;
+  height: 275px;
   width: 100%;
   display: table;
 }
@@ -7573,7 +7573,7 @@ h6 {
 
 /* line 19, ../../01 cl html template/03_jun 2019/188_Aranoz shop_html/sass/_breadcrumb.scss */
 .breadcrumb .breadcrumb_iner .breadcrumb_iner_item h2 {
-  color: #222222;
+  color: #fff;
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 10px;

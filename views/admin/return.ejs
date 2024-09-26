@@ -1,0 +1,100 @@
+<%- include('../layout/adminheder') %>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Order Return Management</h4>
+          <div class="table-responsive">
+            <table class="table table-dark">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Customer Name</th>
+                  <th>Product Details</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (orders.length > 0) { %>
+                  <% orders.forEach((order, index) => { %>
+                    <% // Filter products with return requests %>
+                    <% const returnRequestedProducts = order.products.filter(product => product.returnRequested); %>
+                    <% returnRequestedProducts.forEach(product => { %>
+                      <tr data-order-id="<%= order._id %>">
+                        <td><%= index + 1 %></td>
+                        <td><%= order.userId.name %></td>
+                        <td>
+                          <div class="product-item d-flex align-items-center mb-2">
+                            <img src="/products/<%= product.productId.image1 %>" alt="product image" class="img-thumbnail" style="width: 50px; height: 50px; margin-right: 10px;">
+                            <span class="product-name"><%= product.productId.productname.length > 15 ? product.productId.productname.substring(0, 15) + '...' : product.productId.productname %></span>
+                            <p class="text-muted mt-1">Return Reason: <%= product.reasonForReturn %></p>
+                          </div>
+                        </td>
+                        <td>₹<%= product.totalAmount %></td>
+                        <td>Quantity: <%= product.productquantity %></td>
+                        <td><%= product.returnStatus %></td>
+                        <td>
+                          <% if (product.returnStatus === 'Returning') { %>
+                            <!-- Return Request Handling -->
+                            <button type="button" class="btn btn-success mr-2 approve-return-btn" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>">
+                              <i class="fas fa-check"></i> Accept
+                            </button>
+                            <button type="button" class="btn btn-danger reject-return-btn" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>">
+                              <i class="fas fa-times"></i> Reject
+                            </button>
+                          <% } else { %>
+                            <!-- Display return status if not 'Returning' -->
+                            <span class="badge badge-secondary"><%= product.returnStatus %></span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="7" class="text-center">No Return Requests found</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.approve-return-btn, .reject-return-btn').forEach(button => {
+  button.addEventListener('click', async function() {
+    const orderId = this.getAttribute('data-order-id');
+    const productId = this.getAttribute('data-product-id');
+    const action = this.classList.contains('approve-return-btn') ? 'approve' : 'reject';
+
+    const response = await fetch(`/admin/return/${action}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderId: orderId,
+        productId: productId,
+      }),
+    });
+
+    if (response.ok) {
+      alert('Return Request ' + (action === 'approve' ? 'Approved' : 'Rejected') + ' Successfully');
+      location.reload();
+    } else {
+      const data = await response.json();
+      alert('Failed to Process Request: ' + data.message);
+    }
+  });
+});
+</script>
+
+<%- include('../layout/adminfooter') %>

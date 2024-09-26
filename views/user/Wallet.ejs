@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Wallet card styling with professional ATM card design in teal */
+        .wallet-card {
+            width: 500px;
+            height: 300px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(135deg, #008b8b 0%, #2f9f9f 50%, #4a4a4a 100%);
+            border-radius: 25px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Digital7', 'Orbitron', sans-serif; 
+        }
+
+        /* Circular designs */
+        .wallet-card::before, .wallet-card::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header {
+            font-family: 'Digital7', 'Orbitron', sans-serif; /* Digital font */
+            border: none;
+        }
+
+        /* First large circle */
+        .wallet-card::before {
+            width: 350px;
+            height: 350px;
+            top: -100px;
+            right: -100px;
+        }
+
+        /* Second medium circle */
+        .wallet-card::after {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Card text styling */
+        .wallet-card .card-header h5 {
+            margin: 0;
+            padding: 9px 0;
+            font-size: 1.25rem;
+            color: white;
+            text-align: center;
+        }
+
+        .wallet-card .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .wallet-card .card-body h4 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* Cardholder name styling */
+        .card-holder-name {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 1.25rem;
+            color: white;
+            font-family: 'Digital7', 'Orbitron', sans-serif; /* Digital font */
+        }
+
+        .card-holder-name h5 {
+            margin: 0;
+        }
+
+        /* Transaction link */
+        #showTransactionsLink {
+            text-decoration: none;
+            color: #008b8b; /* Changed to teal */
+        }
+
+        #showTransactionsLink:hover {
+            color: #4a4a4a; /* Slightly lighter shade for hover effect */
+        }
+
+        .table-responsive {
+            margin-top: 10px;
+            max-width: 630px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .transaction-table {
+            width: 100%;
+        }
+
+        /* Table Styling */
+        .table {
+            border: none; /* Remove borders */
+            border-collapse: collapse; /* Collapse table borders */
+        }
+
+        .table th, .table td {
+            border: none; /* Remove cell borders */
+            padding: 8px; /* Add padding for better spacing */
+        }
+
+        .table th {
+            background-color: transparent; /* Make header background transparent */
+            color: #000; /* Set header text color */
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f9f9f9; /* Optional: Add a light background for odd rows */
+        }
+
+        /* Pagination Styling */
+        .pagination {
+            justify-content: center; /* Center pagination controls */
+        }
+
+        /* Media Queries for Mobile View */
+        @media (max-width: 768px) {
+            .wallet-card {
+                width: 300px;
+                height: 200px;
+            }
+
+            .wallet-card .card-header h5 {
+                font-size: 1rem;
+            }
+
+            .wallet-card .card-body h4 {
+                font-size: 1.25rem;
+            }
+
+            .card-holder-name {
+                bottom: 15px;
+                left: 15px;
+                font-size: 1rem;
+            }
+
+            .card-holder-name {
+                bottom: 10px;
+                left: 10px;
+                font-size: 0.875rem;
+            }
+
+            .card-holder-name h6 {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .wallet-card {
+                width: 250px;
+                height: 180px;
+            }
+
+            .wallet-card .card-header h5 {
+                font-size: 0.875rem;
+            }
+
+            .wallet-card .card-body h4 {
+                font-size: 1rem;
+            }
+
+            .card-holder-name {
+                bottom: 10px;
+                left: 10px;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            #breadcrumb-container {
+                padding-top: 0 !important;
+            }
+        }
+        .pagination {
+    margin-top: 20px; /* Adjust spacing as needed */
+}
+
+.pagination .page-link {
+    color: #000; /* Black text color for links */
+    background-color: transparent; /* Transparent background */
+    border: none; /* No borders */
+}
+
+.pagination .page-item.active .page-link {
+    color: white; /* White text for the active page */
+    background-color: #000; /* Black background for the active page */
+}
+
+.pagination .page-link:hover {
+    background-color: #f0f0f0; /* Light gray background on hover */
+    color: #000; /* Ensure text is black on hover */
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc; /* Light gray for disabled state */
+}
+
+    </style>
+</head>
+<body>
+
+<%- include('../layout/usernav') %>
+
+<section class="breadcrumb breadcrumb_bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="breadcrumb_iner">
+                    <div class="breadcrumb_iner_item">
+                        <h2>Wallet</h2>
+                        <p>Home <span>-</span> Wallet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Wallet Design -->
+            <div class="container mt-5">
+                <div class="card mt-4 wallet-card" id="walletcontainer">
+                    <div class="card-header text-center">
+                        <h5 class="walletText">Aranoz.</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h4 class="walletText" style="color: aliceblue;">Balance: <b style="color: aliceblue;">₹ <span id="balance" style="color: aliceblue;"><%= wallet.balance.toFixed(0) %></span></b></h4>
+                    </div>
+                    <!-- wallet name -->
+                    <div class="card-holder-name">
+                        <h6><%= user.name %></h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wallet-transactions mt-5">
+                <h4>Transaction History</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (transactions.length > 0) { %>
+                                <% transactions.forEach(transaction => { %>
+                                    <tr>
+                                        <td><%= transaction._id %></td>
+                                        <td>RS.<%= transaction.amount.toFixed(2) %></td>
+                                        <td><%= transaction.transactionType %></td>
+                                        <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="text-center">No transactions found.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            
+                <!-- Pagination Controls -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <% if (currentPage > 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                            </li>
+                        <% } %>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <% if (currentPage < totalPages) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+         <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const transactionRows = document.querySelectorAll('.transaction-table tbody tr');
+        
+        transactionRows.forEach(row => {
+            row.addEventListener('click', () => {
+                const detailsRow = row.nextElementSibling;
+
+                // Check if the details row already exists
+                if (detailsRow && detailsRow.classList.contains('details-row')) {
+                    // Toggle the visibility
+                    detailsRow.style.display = detailsRow.style.display === 'none' ? '' : 'none';
+                } else {
+                    // Create and insert a new details row
+                    const newDetailsRow = document.createElement('tr');
+                    newDetailsRow.classList.add('details-row');
+                    newDetailsRow.style.display = 'none'; 
+                    newDetailsRow.innerHTML = `<td colspan="4">Details for transaction ID: ${row.cells[0].innerText}</td>`;
+                    row.parentNode.insertBefore(newDetailsRow, row.nextSibling);
+                }
+            });
+        });
+    });
+</script>
+    
+            
+
+<%- include('../layout/userfooter') %>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html

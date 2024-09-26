@@ -75,7 +75,12 @@
                 <div class="s_product_text">
                     <h5>previous<span>|</span> next</h5>
                     <h3><%= singleproduct.productname %></h3>
-                    <h2>₹<%= singleproduct.productprice %></h2>
+                    <% if(singleproduct.discountedPrice && singleproduct.discountedPrice < singleproduct.productprice ){%>
+                      <h2 class="original-price" style="text-decoration: line-through;">₹<%= singleproduct.productprice.toFixed(2) %></h2>
+                      <h2>₹<%= singleproduct.discountedPrice %></h2>
+                    <% } else { %>
+                      <h2>₹<%= singleproduct.productprice.toFixed(2) %></h2>
+                    <% } %>
                     <ul class="list">
                         <li>
                             <a class="active">

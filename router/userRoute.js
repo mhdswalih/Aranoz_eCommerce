@@ -1,8 +1,10 @@
 const express = require('express');
 const passport = require('passport');
+const User = require('../model/userModel')
 const userController = require('../controller/userController');
 const cartController = require('../controller/cartController')
 const orderController = require('../controller/orderController');
+const salesController = require('../controller/salesController')
 const Auth = require('../middleware/userAuth');
 
 
@@ -26,9 +28,32 @@ userRoute.post('/resend-otp', Auth.islogout, userController.resendOTP);
 
 // Google OAuth routes
 userRoute.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-userRoute.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-    res.redirect('/');
-});
+userRoute.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }),async (req, res) => {
+    
+    try {
+      req.session.user = req.user._id
+      const user = await User.findById(req.session.user); 
+         
+          
+      if (user && user.isBlocked === false) {
+        return res.redirect('/');  
+      } 
+      
+      if (user && user.isBlocked === true) {
+        req.logOut((err) => {  
+          if (err) {
+            console.error('Error logging out:', err);
+          }
+          return res.redirect('/login');  
+        });
+      } else {
+        return res.redirect('/login'); 
+      }
+    } catch (error) {
+      console.error('Error handling Google callback:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
 
 //cart
 userRoute.get('/cart',Auth.islogin,cartController.cart)
@@ -56,7 +81,7 @@ userRoute.post('/Profile',Auth.islogin,userController.Edituser)
 //changePassword 
 userRoute.post('/changePassword',Auth.islogin,userController.changePassword);
 
-//outofthepage
+//password
 userRoute.get('/forgetPassword', userController.LoadforgetPassword);
 userRoute.post('/forgetPassword', userController.forgetPassword);
 userRoute.get('/resetPassword/:token',userController.loadReset);
@@ -76,12 +101,37 @@ userRoute.get('/checkout',Auth.islogin,orderController.checkout);
 userRoute.post('/order',Auth.islogin,orderController.placeOrder);
 userRoute.get('/trackOrder',Auth.islogin,orderController.trackOrder);
 userRoute.post('/cancelOrder',Auth.islogin,orderController.cancelOrder)
+userRoute.post('/return-product-request',Auth.islogin,orderController.returnReason);
+userRoute.post('/initiate-repay',Auth.islogin,orderController.repayOption)
+// userRoute.post('/return-product-request',Auth.islogin,orderController.returnAccept);
 
 
 //razor-pay
 userRoute.post('/cashon-delivery',Auth.islogin,orderController.placeOrder)
 userRoute.post('/payment/create-order',Auth.islogin,orderController.createOrder);
 userRoute.post('/payment/verify-payment',Auth.islogin,orderController.verifySignature)
+
+//wallet
+userRoute.get('/walle',Auth.islogin,salesController.loadWallet)
+userRoute.get('/wallet/getDetails',Auth.islogin,salesController.getWalletDetails)
+// userRoute.post('/wallet/addFunds',Auth.islogin,salesController.addFunds)
+// userRoute.post('/wallet/withdrawFunds',Auth.islogin,salesController.withdrawFunds)
+// userRoute.get('/history',Auth.islogin)
+
+//applayCoupen
+userRoute.post('/applayCoupen',Auth.islogin,orderController.applyCoupon)
+userRoute.post('/remove-coupon',Auth.islogin,orderController.removeCoupon)
+
+
+userRoute.get('/download-invoice/:id',Auth.islogin,orderController.downloadPdfInvoice)
+
+
+
+
+
+userRoute.post('/initiate-repay',Auth.islogin,orderController.repayOption)
+// userRoute.post('/verify-payment',Auth.islogin,orderController.verifyPayment)
+   
 
 
 module.exports = userRoute;

@@ -192,23 +192,23 @@
                                     <a class="dropdown-item" href="/shope">Shop Category</a>
                                 </div> -->
                             </li>
+                            <% if (!user) { %>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_3"
                                     role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Pages
+                                    Login/Sign
                                 </a>
+                                <% } %>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown_3">
                                     <% if (!user) { %>
                                     <a class="dropdown-item" href="/login">Login</a>
                                     <a class="dropdown-item" href="/signup">Signup</a>
                                     <% } %>
-                                    <a class="dropdown-item" href="/checkout">Product Checkout</a>
-                                    <a class="dropdown-item" href="/cart">Shopping Cart</a>
-                                    <a class="dropdown-item" href="/views/user/confirmation.html">Confirmation</a>
-                                    <a class="dropdown-item" href="/views/user/elements.html">Elements</a>
+                                  
+                               
                                 </div>
                             </li>
-                            <li class="nav-item dropdown">
+                            <!-- <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_2"
                                     role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Blog
@@ -217,18 +217,18 @@
                                     <a class="dropdown-item" href="/views/user/blog.html">Blog</a>
                                     <a class="dropdown-item" href="/views/user/single-blog.html">Single Blog</a>
                                 </div>
-                            </li>
-                            <li class="nav-item">
+                            </li> -->
+                            <!-- <li class="nav-item">
                                 <a class="nav-link" href="/views/user/contact.html">Contact</a>
                             </li>
-                        </ul>
+                        </ul> -->
                     </div>
                     <div class="hearer_icon d-flex">
                         <div class="nav-item dropdown">
                             <% if (user) { %>
-                            <p class="nav-link dropdown-toggle" style="font-weight: 400;" id="navbarDropdown_3"
+                            <p class="nav-link dropdown-toggle" style="font-weight: 400; color: #fff;" id="navbarDropdown_3"
                                 role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="bi bi-person-circle"></i> <%= user.name %>
+                                <i  class="bi bi-person-circle"></i> <%= user.name %>
                             </p>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown_3">
                                 <a class="dropdown-item" href="/Profile">

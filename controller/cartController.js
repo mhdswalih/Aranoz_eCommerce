@@ -6,28 +6,78 @@ const Product = require('../model/productModel');
 const WishList = require('../model/wishListModel');
 const Category = require('../model/categoryModel');
 const Brand = require('../model/brandModel');
+const Offer = require('../model/offerModel');
+
+
 
 
 // Cart
 const cart = async (req, res) => {
   try {
     const userId = req.session.user;
-    console.log(userId)
+    const now = new Date();
+    
+    // Fetch user and cart
     const user = await User.findById(userId);
-    const userCart = await Cart.findOne({userId}).populate('products.productId');
+    const userCart = await Cart.findOne({ userId }).populate('products.productId');
+    
+    console.log('User Cart:', userCart);
 
-    console.log(userCart);
+    // Fetch valid offers
+    const offers = await Offer.find({
+      startDate: { $lte: now },
+      endDate: { $gte: now }
+    });
+
+    console.log('Valid Offers:', offers);
     
     if (!userCart) {
       return res.render('user/cart', { user, cart: { products: [] } });
     }
+    
+    // Apply offers to cart products
+    userCart.products = userCart.products.map(product => {
+      let discountedPrice = product.productId.productprice; 
+           console.log('this is from cart',discountedPrice);
+           
+      for (const offer of offers) {
+       
+        if (offer.offerType === 'category' && product.productId.category && 
+            product.productId.category._id.equals(offer.category)) {
+          discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
+        }
+        // Apply brand offer
+        else if (offer.offerType === 'brand' && product.productId.brand && 
+                 product.productId.brand._id.equals(offer.brands)) {
+          discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
+        }
+        // Apply specific product offer
+        else if (offer.offerType === 'product' && product.productId._id.equals(offer.products[0])) {
+          discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
+        }
+      }
 
-    res.render('user/cart', { user,cart: userCart });
+      console.log('Final Discounted Price:', discountedPrice);
+      
+    
+      return {
+        ...product.toObject(),  
+        discountedPrice: discountedPrice.toFixed(2)  
+     
+        
+      };
+    });
+
+    res.render('user/cart', { user, cart: userCart });
   } catch (error) {
     console.error("Error in cart:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+
+
+
 
 const Addtocart = async (req, res) => {
   try {

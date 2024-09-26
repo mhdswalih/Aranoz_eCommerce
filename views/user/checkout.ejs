@@ -7,12 +7,117 @@
   .btn_3{
     margin-left: 20%;
   }
+  .payment_item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+</style>
+<!-- CSS for Snackbar -->
+<style>
+  .coupon-item {
+        margin: 10px 0;
+    }
+
+    .coupon-link {
+        text-decoration: none;
+        color: #333;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        transition: background-color 0.3s;
+    }
+
+    .coupon-link:hover {
+        background-color: #e0e0e0;
+    }
+
+    .copy-icon {
+        margin-left: 10px;
+        color: #666;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #f13d80;
+        color: #fff;
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 17px;
+        transform: translateX(-50%);
+    }
+
+    #snackbar.show {
+        visibility: visible;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+
+    @keyframes fadein {
+        from { bottom: 0; opacity: 0; }
+        to { bottom: 30px; opacity: 1; }
+    }
+
+    @keyframes fadeout {
+        from { bottom: 30px; opacity: 1; }
+        to { bottom: 0; opacity: 0; }
+    }
+    .coupon-item {
+    margin: 10px 0; /* Add space between coupon items */
+    width: 200px;
+}
+
+.coupon-link {
+    display: flex;
+    align-items: center; /* Aligns items vertically */
+    background-color: #f9f9f9; /* Light background */
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none; /* Remove underline */
+    color: #333; /* Dark text color */
+    transition: background-color 0.3s;
+}
+
+.coupon-link:hover {
+    background-color: #e0e0e0; /* Slightly darker on hover */
+}
+
+.coupon-index {
+    font-weight: bold; /* Make index bold */
+    margin-right: 5px; /* Space between index and tag */
+}
+
+.coupon-code {
+    font-size: 1.1rem; /* Slightly larger font size for coupon code */
+}
+
+.copy-icon {
+    margin-left: auto; /* Push copy icon to the right */
+    color: #007bff; /* Bootstrap primary color */
+    transition: color 0.3s;
+}
+
+.copy-icon:hover {
+    color: #0056b3; /* Darker blue on hover */
+}
+
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
-
-
+<link rel="stylesheet" href="/Admin assets/assets/vendors/flag-icon-css/css/flag-icon.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <link rel="stylesheet" href="/css/orderbtn.css">
   <!-- Header part end-->
@@ -34,26 +139,50 @@
     </div>
   </section>
   <!-- breadcrumb start-->
-
+  <div id="snackbar">Coupon code copied to clipboard!</div>
   <!--================Checkout Area =================-->
   <section class="checkout_area padding_top">
     <div class="container">
       <div class="returning_customer">
       <div class="cupon_area">
         <div class="check_title">
-          <h2>
-            Have a coupon?
-            <a href="#">Click here to enter your code</a>
-          </h2>
-        </div>
-        <input type="text" placeholder="Enter coupon code" />
-        <a class="tp_btn" href="#">Apply Coupon</a>
+         
+           <!-- Coupon List -->
+           <div class="coupon-section">
+            <p>
+                <a class="btn genric-btn primary-border mediam" data-toggle="collapse" href="#couponCollapse" role="button" aria-expanded="false" aria-controls="couponCollapse" > <span class="bi bi-tag"></span>
+                    Have a coupon? Click to view
+                </a>
+            </p>
+            <div class="collapse" id="couponCollapse">
+              <% cop.forEach((cop, index) => { %>
+                  <div class="coupon-item">
+                      <a class="coupon-link"  onclick="copyToClipboard('<%= cop.couponCode %>')">
+                          <span class="coupon-index"><%= index + 1 %> - </span>
+                          <span class="bi bi-tag"></span> 
+                          <span class="coupon-code"><%= cop.couponCode %></span>
+                          <i class="fas fa-copy copy-icon"></i>
+                      </a>
+                  </div>
+              <% }) %>
+          </div>
+          
+   <form id="applayCoupenForm">
+    <input type="text" id="coupenCode" name="coupenCode" placeholder="Enter coupon code" />
+    <button type="submit" id="applyCouponButton" class="tp_btn">Apply Coupon</button>
+</form>
+      <div>
+        
+        <button class="tp_btn" id="removeCouponButton">Remove Coupon</button>
+      </div>
       </div>
       <form action="" id="orderForm">
       <div class="billing_details">
         <div class="row">
           <div class="col-lg-8">
-            <h3>Billing Details</h3>
+            <div style="top: 20px; ;">
+            <h3 >Add Address</h3>
+          </div>
             <form class="row contact_form" id="addAddressForm" action="" novalidate="novalidate">
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="newName" name="newName" placeholder="Enter Your Name" />
@@ -91,7 +220,7 @@
               <div class="col-md-12 form-group">
                 <div class="creat_account">
                   <h3>Shipping Details</h3>
-                  <input type="checkbox" id="f-option3" name="selector" />
+                 
                   <label for="f-option3">Ship to a different address?</label>
                 </div>
                 <form class="row contact_form" action="/place-order" method="POST">
@@ -124,33 +253,47 @@
           </div>
           <div class="col-lg-4">
             <div class="order_box">
-              <h2>Your Order</h2>
-              <ul class="list">
-                <li>
-                  <a href="#">Product<span>Total</span></a>
-                </li>
-                <% cart.products.forEach(product => { %>
+                <h2>Your Order</h2>
+                <ul class="list">
                   <li>
-                    <a href="#"><%= product.productId.productname.length > 15 ? product.productId.productname.substring(0, 15) + '...': product.productId.productname %>
-                      <span class="middle">x<%= product.productquantity %></span>
-                      <span class="last">$<%= Number(product.productId.productprice)  * Number(product.productquantity) %></span>
-                    </a>
+                      <a href="#">Product<span>Total</span></a>
                   </li>
-                <% }) %>
+                  <% cart.products.forEach(product => { %>
+                      <li>
+                          <a href="#">
+                              <!-- Product name with length check -->
+                              <%= product.productId.productname.length > 15 ? product.productId.productname.substring(0, 15) + '...' : product.productId.productname %>
+                              <span class="middle">x<%= product.productquantity %></span>
+                              <span class="last">
+                                  ₹<%= (product.discountedPrice && product.discountedPrice < product.productId.productprice 
+                                      ? (product.discountedPrice * product.productquantity).toFixed(2)
+                                      : (product.productId.productprice * product.productquantity).toFixed(2)) %>
+                              </span>
+                          </a>
+                      </li>
+                  <% }) %>
               </ul>
               <ul class="list list_2">
                 <li>
-                  <a href="#">Subtotal<span>$<%= cart.products.reduce((sum, product) => sum + (Number(product.productId.productprice) * Number(product.productquantity)), 0) %></span></a>
+                    <a href="#">Subtotal<span id="subtotalAmount">₹<%= subtotal.toFixed(2) %></span></a>
                 </li>
                 <li>
-                  <a href="#">Shipping<span>Flat rate: $50.00</span></a>
+                    <a href="#">Shipping<span id="shippingAmount">Flat rate: ₹<%= shipping.toFixed(2) %></span></a>
                 </li>
+                
+                    <li>
+                        <a href="#">Discount<span id="discountAmount">-₹<%= discount.toFixed(2) %></span></a>
+                    </li>
+             
                 <li>
-                  <a href="#">Total<span>$<%= cart.products.reduce((sum, product) => sum + (Number(product.productId.productprice) * Number(product.productquantity)), 0) + 50 %></span></a>
+                    <a href="#">Total<span id="totalAmount">₹<%= total.toFixed(2) %></span></a>
                 </li>
-              </ul>
+            </ul>
+                          
+            <!-- </div>
+        </div>
+         -->
               
-          
               <!-- Payment Methods -->
               <div class="payment_item">
                 <!-- <div class="radion_btn">
@@ -174,26 +317,44 @@
                     </div>
                     <p>Secure payment through Razorpay.</p>
                 </div>
-                
-                <div class="payment_item">
-                    <div class="radion_btn">
-                        <input type="radio" id="cod-option" name="paymentMethod" value="cod" />
-                        <label for="cod-option">Cash On Delivery</label>
-                        <img src="img/product/single-product/card.jpg" alt="Cash On Delivery" />
-                        <div class="check"></div>
-                    </div>
-                    <p>Pay with cash upon delivery.</p>
-                </div>
+                <% if (total > 1000) { %>
+                  <div class="payment_item disabled">
+                      <div class="radion_btn">
+                          <input type="radio" id="cod-option" name="paymentMethod" value="cod" disabled />
+                          <label for="cod-option">Cash On Delivery</label>
+                          <img src="img/product/single-product/card.jpg" alt="Cash On Delivery" />
+                          <div class="check"></div>
+                      </div>
+                      <p>Pay with cash upon delivery.</p>
+                      <!-- Message indicating COD is not available -->
+                      <p style="color: red;">Cash on Delivery is available only for orders less than 1000.</p>
+                  </div>
+              <% } else { %>
+                  <div class="payment_item">
+                      <div class="radion_btn">
+                          <input type="radio" id="cod-option" name="paymentMethod" value="cod" />
+                          <label for="cod-option">Cash On Delivery</label>
+                          <img src="img/product/single-product/card.jpg" alt="Cash On Delivery" />
+                          <div class="check"></div>
+                      </div>
+                      <p>Pay with cash upon delivery.</p>
+                  </div>
+              <% } %>
+              
             
+                <!-- Add other form fields and submit button as needed -->
+                <!-- <button type="submit">Proceed to Payment</button> -->
+            </form>
+                            
                 <!-- Terms and Conditions -->
                 <!-- <div class="creat_account">
                     <input type="checkbox" id="terms-conditions" name="termsAndConditions" />
                     <label for="terms-conditions">I’ve read and accept the </label><a href="#">terms & conditions*</a>
                 </div> -->
                 <!-- Submit Button -->
-                <!-- <button id="order" type="submit" data-address-id="<%= addr[0]._id %>" class="btn_3">Proceed to Pay</button> -->
+                <!-- <button id="order" type="submit" data-address-id="<%= addr._id %>" class="btn_3">Proceed to Pay</button> -->
                  <div class="trk">
-                <button id="order" type="submit" data-address-id="<%= addr[0]._id %>" class="truck-button">
+                <button id="order" type="submit"  data-address-id="<%= addr._id %>" class="truck-button">
                   <span class="default">
                       Complete Order</span>
                   <span class="success">
@@ -365,7 +526,7 @@
 
   <!-- jquery plugins here-->
   <!-- jquery -->
-   <!-- <script src="/script/user/AddAddress.js"></script> -->
+   <script src="/script/user/AddAddress.js"></script>
   <script src="js/jquery-1.12.1.min.js"></script>
   <!-- popper js -->
   <script src="js/popper.min.js"></script>
@@ -487,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!truckButton.classList.contains('done')) {
             if (!truckButton.classList.contains('animation')) {
                 truckButton.classList.add('animation');
-                console.log('Starting animation...'); // Debug log
+               
 
                 gsap.to(truckButton, {
                     '--box-s': 1,
@@ -495,8 +656,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     duration: 0.3,
                     delay: 0.5,
                     onComplete: async function () {
-                        console.log('Animation completed'); // Debug log
-                        // Proceed with payment after animation completes
+                       
+                       
                         if (selectedPaymentMethod === 'razorpay') {
                             try {
                                 const response = await fetch('/payment/create-order', {
@@ -508,7 +669,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                         currency: 'INR',
                                         receipt: `receipt_${Date.now()}`,
                                         notes: {
-                                            addressId: addressId
+                                            addressId: addressId,
+                                            selectedPaymentMethod,
+
                                         }
                                     })
                                 });
@@ -525,7 +688,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     key: 'rzp_test_GuelVWx5XVbHqs',
                                     amount: amount,
                                     currency: currency,
-                                    name: "Your Store Name",
+                                    name: "Aranoz.",
                                     description: `Payment for Order #${orderId}`,
                                     image: "https://your-logo-url.com/logo.png",
                                     order_id: orderId,
@@ -542,6 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 orderId: orderId
                                             })
                                         });
+                                        
 
                                         const verifyData = await verifyResponse.json();
 
@@ -578,6 +742,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                                 const rzp = new Razorpay(options);
                                 rzp.on('payment.failed', function (response) {
+                                     
                                     Swal.fire({
                                         title: 'Payment Failed!',
                                         text: response.error.description || 'Please try again.',
@@ -606,7 +771,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                         'Content-Type': 'application/json'
                                     },
                                     body: JSON.stringify({
-                                        addressId: addressId 
+                                        addressId: addressId,
+                                        selectedPaymentMethod 
                                     })
                                 });
 
@@ -645,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Reset animation on payment method change
+
     const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
     paymentRadios.forEach(function (radio) {
         radio.addEventListener('change', function () {
@@ -654,6 +820,159 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+</script>
+
+
+<!-- Snackbar HTML -->
+
+
+<script>
+  function copyToClipboard(couponCode) {
+      // Create a temporary input element
+      const tempInput = document.createElement("input");
+      tempInput.style.position = "absolute";
+      tempInput.style.left = "-9999px";
+      tempInput.value = couponCode;
+
+      
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      tempInput.setSelectionRange(0, 99999); 
+
+    
+      document.execCommand("copy");
+
+   
+      document.body.removeChild(tempInput);
+
+      // Show snackbar message
+      showSnackbar(`Coupon code "${couponCode}" copied to clipboard!`);
+  }
+
+  function showSnackbar(message) {
+      var snackbar = document.getElementById("snackbar");
+      snackbar.textContent = message;
+      snackbar.className = "show";
+      setTimeout(function() {
+          snackbar.className = snackbar.className.replace("show", "");
+      }, 3000); 
+  }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const applyCouponForm = document.getElementById('applayCoupenForm');
+
+    applyCouponForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const coupenCode = document.getElementById('coupenCode').value.trim();
+
+        try {
+            const response = await fetch('/applayCoupen', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ coupenCode })
+            });
+
+            const data = await response.json();
+            console.log('Response from backend:', data);
+
+            if (response.ok && data.success) {
+              
+                const subtotalElement = document.getElementById('subtotalAmount');
+                const shippingElement = document.getElementById('shippingAmount');
+                const discountElement = document.getElementById('discountAmount');
+                const totalElement = document.getElementById('totalAmount');
+
+                
+                if (subtotalElement && shippingElement && discountElement && totalElement) {
+                   
+                    subtotalElement.innerText = `₹${data.subtotal.toFixed(2)}`;
+                    shippingElement.innerText = `₹${data.shipping.toFixed(2)}`;
+                    discountElement.innerText = `-₹${data.discount.toFixed(2)}`;
+                    totalElement.innerText = `₹${data.total.toFixed(2)}`;
+                    
+                    showSnackbar('Coupon Applied Successfully');
+                } else {
+                    console.error('One or more elements not found');
+                    showSnackbar('Unexpected response data');
+                }
+            } else {
+                showSnackbar('Failed to Apply Coupon: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error applying coupon:', error);
+            showSnackbar('Error applying coupon');
+        }
+    });
+});
+
+function showSnackbar(message) {
+    const snackbar = document.getElementById('snackbar');
+    snackbar.textContent = message;
+    snackbar.className = 'show';
+    setTimeout(() => {
+        snackbar.className = snackbar.className.replace('show', '');
+    }, 3000);
+}
+
+</script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const total =  JSON.stringify(total); 
+        const codOption = document.getElementById('cod-option');
+        const codItem = codOption ? codOption.closest('.payment_item') : null;
+
+        if (codOption && codItem) {
+            if (total > 1000) {
+                codOption.disabled = true;
+                codItem.classList.add('disabled');
+            } else {
+                codOption.disabled = false;
+                codItem.classList.remove('disabled');
+            }
+        } else {
+            console.error("COD option or item not found");
+        }
+    });
+
+
+
+</script>
+<script>
+  document.getElementById('removeCouponButton').addEventListener('click',async function() {
+    await fetch('/remove-coupon', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Failed to remove coupon.');
+      }
+    })
+    .catch(error => console.error('Error removing coupon:', error));
+  });
+  rzp.on('payment.failed', async function (response) {
+    console.log('this is rzp failed')
+  await fetch('/payment/failure', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      orderId: orderId,
+      error: response.error, 
+    })
+  });
+});
 </script>
 </body>
 

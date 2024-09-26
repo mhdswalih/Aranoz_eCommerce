@@ -1,0 +1,123 @@
+<%- include('../layout/adminheder') %>
+<style>
+    .img-thumbnail-small {
+        max-width: 150px;
+        max-height: 150px;
+        width: auto;
+        height: auto;
+    }
+    .table th, .table td {
+        text-align: center;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Order Details</h4>
+
+                    <!-- Order Information -->
+                    <div class="order-info mb-4">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <td><%= orders._id %></td>
+                                </tr>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <td><%= orders.addressId.name %></td>
+                                </tr>
+                                <tr>
+                                    <th>Total Amount</th>
+                                    <td>₹<%= orders.totalAmount %></td>
+                                </tr>
+                                <!-- <tr>
+                                    <th>Status</th>
+                                    <td> <%= orders.products.orderStatus %></td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="product-details">
+                        <h5>Product Details</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Product Name</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.products.forEach(product => { %>
+                                    <tr>
+                                        <td><img style="width: 100px;height: 100px;" src="/products/<%= product.productId.image1 %>" 
+                                                   alt="product image" 
+                                                   class=""></td>
+                                        <td><%= product.productId.productname %></td>
+                                        <td>₹<%= product.productId.productprice %></td>
+                                        <td><%= product.productquantity %></td>
+                                        <td>₹<%= product.productId.productprice * product.productquantity %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Return Information (if applicable) -->
+                    <% if (orders.products.some(product => product.returnRequested)) { %>
+                        <div class="return-info mt-4">
+                            <h5>Return Information</h5>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Return Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% orders.products.forEach(product => { %>
+                                        <% if (product.returnRequested) { %>
+                                            <tr>
+                                                <td><%= product.productId.productname %></td>
+                                                <td><%= product.reasonForReturn %></td>
+                                            </tr>
+                                        <% } %>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary mt-4">
+                        <h5>Order Summary</h5>
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>Subtotal</th>
+                                    <td>₹<%= orders.totalAmount - 50 %></td>
+                                </tr>
+                                <tr>
+                                    <th>Shipping Cost</th>
+                                    <td>₹50</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Amount</th>
+                                    <td>₹<%= orders.totalAmount %></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layout/adminfooter') %>

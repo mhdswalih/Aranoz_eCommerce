@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../model/userModel");
 const Product = require("../model/productModel");
+const Cart = require('../model/cart.Model')
 const Category = require("../model/categoryModel");
 const nodemailer = require("nodemailer");
 const { Categories } = require("./AdminController");
@@ -10,7 +11,9 @@ const mongoose=require('mongoose')
 const crypto = require('crypto');
 const { token } = require("morgan");
 const Order = require("../model/orderModel");
+const Offer = require('../model/offerModel')
 const { error } = require("console");
+
 require("dotenv").config();
 
 // Password hashing
@@ -108,7 +111,25 @@ const loadRegister = async (req, res) => {
 const loadHome = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.session.user });
-    res.render("user/home", { user: user });
+
+    const bestSellers = await Order.aggregate([
+      { $unwind: '$products' }, 
+      { 
+        $group: {
+          _id: '$products.productId', 
+          orderCount: { $sum: '$products.productquantity' } 
+        } 
+      },
+      { $sort: { orderCount: -1 } }, 
+      { $limit: 20 } 
+    ]).exec();
+    
+  
+    const productDetails = await Product.find({ _id: { $in: bestSellers.map(item => item._id) }, listed: true })
+      .populate('category')
+      .populate('brand');
+
+    res.render("user/home", { user: user ,productDetails});
   } catch (err) {
     console.error("Error in loadHome:", err);
     res
@@ -234,7 +255,7 @@ const bestSellers = async () => {
       { 
         $group: {
           _id: '$products.productId', 
-          orderCount: { $sum: '$products.quantity' } 
+          orderCount: { $sum: '$products.productquantity' } 
         } 
       },
       { $sort: { orderCount: -1 } }, 
@@ -253,120 +274,167 @@ const bestSellers = async () => {
   }
 };
 
-//shop
 const shope = async (req, res) => {
   try {
-    // const { category, brand, minPrice, maxPrice, sort,search } = req.query; 
-    category=req.query.category||'';
-    brand = req.query.brand||'';
-    minPrice = req.query.minPrice||'';
-    maxPrice = req.query.maxPrice || '';
-    search = req.query.search || '';
-    sort = req.query.sort || '';
-   
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
+    const {
+      category = [],
+      brand = [],
+      minPrice = '',
+      maxPrice = '',
+      search = '',
+      sort = '',
+      page = 1,
+      limit = 5
+    } = req.query;
+
     const skip = (page - 1) * limit;
-    const bestSell = await bestSellers(); 
+
+    const bestSell = await bestSellers();
+
     let filterProduct = { listed: true };
 
-    if (category) {
-      const categoryDocs = await Category.find({ _id: { $in: category } });
+    // Filter categories
+    if (category.length) {
+      const categoryDocs = await Category.find({ _id: { $in: category }, isListed: true });
       if (categoryDocs.length > 0) {
         filterProduct.category = { $in: categoryDocs.map(doc => doc._id) };
+      } else {
+        filterProduct.category = { $in: [] };
       }
     }
 
-    if (brand) {
-      const brandDocs = await Brand.find({ _id: { $in: brand } });
+    // Filter brands
+    if (brand.length) {
+      const brandDocs = await Brand.find({ _id: { $in: brand }, isListed: true });
       if (brandDocs.length > 0) {
         filterProduct.brand = { $in: brandDocs.map(doc => doc._id) };
+      } else {
+        filterProduct.brand = { $in: [] };
       }
     }
 
+    // Price range filter
     if (minPrice && maxPrice) {
       filterProduct.price = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };
     }
-      // Search query
-      if (search) {
-        filterProduct.$or = [
-          { productname: { $regex: search, $options: 'i' } }, 
-          // { productdescription: { $regex: search, $options: 'i' } },
-          { brand: await Brand.findOne({ name: { $regex: search, $options: 'i' } }) },
-          { category: await Category.findOne({ name: { $regex: search, $options: 'i' } }) },
-        ];
-      }
 
-    let sortOption = {};
-    if (sort === 'price-asc') {
-      sortOption. productprice= 1; 
-    } else if (sort === 'price-desc') {
-      sortOption. productprice = -1; 
+    // Search query
+    if (search) {
+      const brandIds = await Brand.find({ name: { $regex: search, $options: 'i' }, isListed: true }).distinct('_id');
+      const categoryIds = await Category.find({ name: { $regex: search, $options: 'i' }, isListed: true }).distinct('_id');
+      filterProduct.$or = [
+        { productname: { $regex: search, $options: 'i' } },
+        { brand: { $in: brandIds } },
+        { category: { $in: categoryIds } }
+      ];
     }
 
-    const products = await Product.find(filterProduct)
+    // Sort option
+    let sortOption = {};
+    if (sort === 'price-asc') {
+      sortOption.productprice = 1;
+    } else if (sort === 'price-desc') {
+      sortOption.productprice = -1;
+    }
+
+    // Fetch products and apply filters
+    let products = await Product.find(filterProduct)
       .populate('category')
       .populate('brand')
       .sort(sortOption)
       .skip(skip)
       .limit(limit);
-    console.log('total products',products)
+
     const totalProducts = await Product.countDocuments(filterProduct);
     const totalPages = Math.ceil(totalProducts / limit);
 
     const brands = await Brand.find({ delete: false, isListed: true });
     const categories = await Category.find({ delete: false, isListed: true });
     const user = await User.findOne({ _id: req.session.user });
+    const cart = await Cart.findById({ _id: req.session.user });
 
-    res.render("user/shope", {
+    res.render('user/shope', {
       bestSell,
       shop: products,
       categories,
       brands,
       user,
+      minPrice,
+      maxPrice,
+      sort,
       currentPage: page,
       totalPages,
       limit,
       search,
+      cart,
+      selectedCategories: Array.isArray(category) ? category : [category], 
+      selectedBrands: Array.isArray(brand) ? brand : [brand] 
     });
   } catch (error) {
-    console.error("Error loading products", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Error loading products', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 
 
-//single Product
+
+
 const singleproduct = async (req, res) => {
   try {
+    const now = new Date();
+    const offers = await Offer.find({
+      startDate: { $lte: now },
+      endDate: { $gte: now }
+    });
+
     const id = req.params.id;
-    const singleproduct = await Product.findById(id).populate("category");
-    const user = await User.findOne({ _id: req.session.user });
+    let singleproduct = await Product.findById(id).populate("category")
 
     if (!singleproduct) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-  
-    const totalReviews = singleproduct.ratings.length;
-    const totalRating = singleproduct.ratings.reduce((acc, r) => acc + r.rating, 0);
+    const user = await User.findOne({ _id: req.session.user });
+
+    let discountedPrice = singleproduct.productprice
+
+    for (const offer of offers) {
+      if (offer.offerType === 'category' && singleproduct.category && singleproduct.category._id.equals(offer.category)) {
+        discountedPrice -= (discountedPrice * (offer.discountPercentage / 100)); 
+      } else if (offer.offerType === 'brand' && singleproduct.brand && singleproduct.brand._id.equals(offer.brands)) {
+        discountedPrice -= (discountedPrice * (offer.discountPercentage / 100)); 
+      } else if (offer.offerType === 'product' && singleproduct._id.equals(offer.products[0])) {
+        discountedPrice -= (discountedPrice * (offer.discountPercentage / 100)); 
+      }
+    }
+
+    
+    singleproduct = {
+      ...singleproduct.toObject(),
+      discountedPrice: discountedPrice.toFixed(2)
+    };
+
+   
+    const totalReviews = singleproduct.ratings ? singleproduct.ratings.length : 0;
+    const totalRating = totalReviews > 0 ? singleproduct.ratings.reduce((acc, r) => acc + r.rating, 0) : 0;
     const overallRating = totalReviews > 0 ? (totalRating / totalReviews).toFixed(1) : 0;
 
     const starCount = {
-      5: singleproduct.ratings.filter(r => r.rating === 5).length,
-      4: singleproduct.ratings.filter(r => r.rating === 4).length,
-      3: singleproduct.ratings.filter(r => r.rating === 3).length,
-      2: singleproduct.ratings.filter(r => r.rating === 2).length,
-      1: singleproduct.ratings.filter(r => r.rating === 1).length,
+      5: totalReviews > 0 ? singleproduct.ratings.filter(r => r.rating === 5).length : 0,
+      4: totalReviews > 0 ? singleproduct.ratings.filter(r => r.rating === 4).length : 0,
+      3: totalReviews > 0 ? singleproduct.ratings.filter(r => r.rating === 3).length : 0,
+      2: totalReviews > 0 ? singleproduct.ratings.filter(r => r.rating === 2).length : 0,
+      1: totalReviews > 0 ? singleproduct.ratings.filter(r => r.rating === 1).length : 0,
     };
 
     res.render("user/single-product", { singleproduct, user, overallRating, totalReviews, starCount });
   } catch (error) {
     console.error("Error to load single-product", error);
-    res.status(500).json({ message: "internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 //load Profile
 const loadeProfile = async (req, res) => {

@@ -1,69 +1,66 @@
-
-    <%- include('../layout/adminheder') %>
- <div class="main-panel">
+<%- include('../layout/adminheder') %>
+<div class="main-panel">
   <div class="content-wrapper">
     <div class="col-lg-12 grid-margin stretch-card">
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">Order Table</h4>
           <div class="table-responsive">
-            <table class="table table-dark" >
+            <table class="table table-dark">
               <thead>
                 <tr>
                   <th>#</th>
-                  <!-- <th>Order ID</th> -->
-                  <th>Customer Name</th>
-                  <th>Product Details</th>
-                  <th>Status</th>
+                  <th>Product Image</th>
+                  <th>Product Name</th>
                   <th>Price</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <% if (orders.length > 0) { %>
-                  <% orders.forEach((order, index) => { %>
-                    <div  data-order-id="<%= orders._id %>">
-                    <tr>
-                      <td><%= index + 1 %></td>
-                      <!-- <td><%= order._id %></td> -->
-                      <td><%= order.userId.name %></td>
-                      <td>
-                        <% order.products.forEach(product => { %>
-                          <div>
-                            <img src="/products/<%= product.productId.image1 %>" alt="product image" style="width: 50px; height: 50px;">
-                            <span><%= product.productId.productname.length > 15 ? product.productId.productname.substring(0, 15) + '...': product.productId.productname %></span>
-                            <span>Quantity: <%= product.productquantity %></span>
-                          </div>
-                        <% }) %>
-                      </td>
-                      <td><%= order.orderStatus %></td>
-                      <td>₹<%= order.totalAmount %></td>
-                      <td>
-                        <div class="btn-group">
-                          <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
-                            Actions
-                          </button>
-                          <div class="dropdown-menu">
-                            <button type="button" data-status="Pending" data-order-id="<%= order._id %>" class="dropdown-item">
-                              <i class="fas fa-clock"></i> Pending
+                  <% orders.forEach((order, orderIndex) => { %>
+                    <% order.products.forEach((product, productIndex) => { %>
+                      <tr>
+                        <td><%= (currentPage - 1) * 10 + orderIndex + 1 %></td>
+                        <td>
+                          <img src="/products/<%= product.productId.image1 %>" alt="product image" class="img-thumbnail" style="width: 50px; height: 50px; margin-right: 10px;">
+                        </td>
+                        <td><%= product.productId.productname.length > 15 ? product.productId.productname.substring(0, 15) + '...' : product.productId.productname %></td>
+                        <td>₹<%= product.productId.productprice %></td>
+                        <td><%= product.orderStatus %></td>
+                        <td>
+                          <% if (product.returnRequested && product.orderStatus === 'Returning') { %>
+                            <button type="button" class="btn btn-success mr-2 approve-return-btn" data-action="approve" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>">
+                                <i class="fas fa-check"></i> Accept
                             </button>
-                            <button type="button" data-status="Shipped" data-order-id="<%= order._id %>" class="dropdown-item">
-                              <i class="fas fa-truck"></i> Shipped
+                            <button type="button" class="btn btn-danger reject-return-btn" data-action="reject" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>">
+                                <i class="fas fa-times"></i> Cancel
                             </button>
-                            <button type="button" data-status="Delivered" data-order-id="<%= order._id %>" class="dropdown-item">
-                              <i class="fas fa-check"></i> Delivered
-                            </button>
-                            <button type="button" data-status="Cancelled" data-order-id="<%= order._id %>" class="dropdown-item">
-                              <i class="fas fa-times"></i> Cancel
-                            </button>
-                            <!-- <a  href="" d  class="dropdown-item">
-                              <i class="fas fa-times"></i> View Product
-                            </a> -->
-                          </div>
-                        </div>
-                        
-                      </td>
-                    </tr>
+                          <% } else { %>
+                            <div class="btn-group">
+                              <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
+                                  Actions
+                              </button>
+                              <div class="dropdown-menu">
+                                  <button type="button" data-status="Pending" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>" class="dropdown-item">
+                                      <i class="fas fa-clock"></i> Pending
+                                  </button>
+                                  <button type="button" data-status="Shipped" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>" class="dropdown-item">
+                                      <i class="fas fa-truck"></i> Shipped
+                                  </button>
+                                  <button type="button" data-status="Delivered" data-order-id="<%= order._id %>" data-product-id="<%= product.productId._id %>" class="dropdown-item">
+                                      <i class="fas fa-check"></i> Delivered
+                                  </button>
+                              </div>
+                            </div>
+                          <% } %>
+                        </td>
+                        <td>
+                          <a href="/admin/orderView/<%= order._id %>">View Details</a>
+                        </td>
+                      </tr>
+                    <% }); %>
                   <% }); %>
                 <% } else { %>
                   <tr>
@@ -73,21 +70,64 @@
               </tbody>
             </table>
           </div>
+          <!-- Pagination Controls -->
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+              <% } %>
+              <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
-    </div>
   </div>
 </div>
+
+
 <script>
+document.querySelectorAll('.approve-return-btn, .reject-return-btn').forEach(button => {
+  button.addEventListener('click', async function() {
+    const action = this.getAttribute('data-action');
+    const orderId = this.getAttribute('data-order-id');
+    const productId = this.getAttribute('data-product-id');
+    
+    const response = await fetch(`/admin/order-status/${orderId}/product/${productId}/return/${action}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (response.ok) {
+      alert('Action completed successfully');
+      location.reload();
+    } else {
+      const data = await response.json();
+      alert('Failed to complete action: ' + data.message);
+    }
+  });
+});
+
 document.querySelectorAll('.dropdown-item').forEach(item => {
-  item.addEventListener('click', async function() { 
+  item.addEventListener('click', async function() {
     const newStatus = this.getAttribute('data-status');
-    const orderId = this.getAttribute('data-order-id'); 
+    const orderId = this.getAttribute('data-order-id');
+    const productId = this.getAttribute('data-product-id');
     
-    console.log(newStatus, orderId);
-    
-    const response = await fetch(`/admin/order-status/${orderId}`, {
+    const response = await fetch(`/admin/order-status/${orderId}/product/${productId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,20 +138,14 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
     });
     
     if (response.ok) {
-      alert('Status Changed Successfully');
-      location.reload(); 
+      alert('Status changed successfully');
+      location.reload();
     } else {
       const data = await response.json();
-      alert('Failed to Change Status: ' + data.message);
+      alert('Failed to change status: ' + data.message);
     }
   });
 });
-
 </script>
 
-
-    
-    
-
-    <%- include('../layout/adminfooter') %>
-
+<%- include('../layout/adminfooter') %>

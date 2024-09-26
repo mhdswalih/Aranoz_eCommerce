@@ -60,180 +60,164 @@
     <!-- breadcrumb start-->
 
     <!--================Category Product Area =================-->
-    <form action="/shope?category=<%=categories%>&brand=<%=brand%>&search=<%=search%>&minPrice=<%=minPrice%>&maxPrice=<%=maxPrice%>" method="get" id="filter-form">
-        <section class="cat_product_area section_padding">
-            <div class="container">
-                <div class="row">
-                    <!-- Sidebar with Filters -->
-                    <div class="col-lg-3">
-                        <div class="left_sidebar_area">
-                            <!-- Categories Filter -->
-                            <aside class="left_widgets p_filter_widgets">
-                                <div class="l_w_title">
-                                    <h3>Categories</h3>
-                                </div>
-                                <div class="widgets_inner">
-                                    <ul class="list">
-                                        <% if (categories.length > 0) { %>
-                                            <% categories.forEach((cat) => { %>
-                                                <li>
-                                                    <input type="checkbox" name="category" value="<%= cat._id %>" id="category_<%= cat._id %>">
-                                                    <label for="category_<%= cat._id %>"><%= cat.name %></label>
-                                                </li>
-                                            <% }); %>
-                                        <% } else { %>
-                                            <li>No Categories found</li>
-                                        <% } %>
-                                    </ul>
-                                </div>
-                            </aside>
+    <form action="/shope" method="get" id="filter-form">
+      <section class="cat_product_area section_padding">
+        <div class="container">
+          <div class="row">
+            <!-- Sidebar with Filters -->
+            <div class="col-lg-3">
+              <div class="left_sidebar_area">
+                <!-- Categories Filter -->
+                <aside class="left_widgets p_filter_widgets">
+                  <div class="l_w_title">
+                    <h3>Categories</h3>
+                  </div>
+                  <div class="widgets_inner">
+                    <ul class="list">
+                      <% if (categories.length > 0) { %>
+                        <% categories.forEach((cat) => { %>
+                          <li>
+                            <input type="checkbox" name="category[]" value="<%= cat._id %>" 
+                                   id="category_<%= cat._id %>"
+                                   <%= categories.includes(cat._id.toString()) ? 'checked' : '' %>
+                                   onchange="debouncedSubmit(this.form)">
+                            <label for="category_<%= cat._id %>"><%= cat.name %></label>
+                          </li>
+                        <% }); %>
+                      <% } else { %>
+                        <li>No Categories found</li>
+                      <% } %>
+                    </ul>
+                  </div>
+                </aside>
     
-                            <!-- Brands Filter -->
-                            <aside class="left_widgets p_filter_widgets">
-                                <div class="l_w_title">
-                                    <h3>Brands</h3>
-                                </div>
-                                <div class="widgets_inner">
-                                    <ul class="list">
-                                        <% if (brands.length > 0) { %>
-                                            <% brands.forEach((br) => { %>
-                                                <li>
-                                                    <input type="checkbox" name="brand" value="<%= br._id %>" id="brand_<%= br._id %>">
-                                                    <label for="brand_<%= br._id %>"><%= br.name %></label>
-                                                </li>
-                                            <% }); %>
-                                        <% } else { %>
-                                            <li>No Brands found</li>
-                                        <% } %>
-                                    </ul>
-                                </div>
-                            </aside>
-    
-                            <!-- Price Filter -->
-                            <aside class="left_widgets p_filter_widgets price_rangs_aside">
-                                <div class="l_w_title">
-                                    <!-- <h3>Price Filter</h3> -->
-                                </div>
-                                <div class="widgets_inner">
-                                    <div class="range_item">
-                                        <!-- <input type="text" class="js-range-slider" value="" /> -->
-                                        <div class="d-flex">
-                                            <div class="price_text">
-                                                <!-- <p>Price :</p> -->
-                                            </div>
-                                            <div class="price_value d-flex justify-content-center">
-                                                <!-- <input type="text" class="js-input-from" readonly /> -->
-                                                <!-- <span>to</span> -->
-                                                <!-- <input type="text" class="js-input-to" readonly /> -->
-                                            </div>
-                                            <div>
-                                                <!-- <input type="hidden" name="minPrice" class="js-min-price" />
-                                                <input type="hidden" name="maxPrice" class="js-max-price" /> -->
-                                                <button class="genric-btn primary-border small" type="submit">Apply</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </aside>                            
-                        </div>
-                    </div>
-                </form>
-                    <!-- Product Listings -->
-                    <div class="col-lg-9">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="product_top_bar d-flex justify-content-between align-items-center">
-                                    <div class="single_product_menu">
-                                        <p><span> </span> Product Found</p>
-                                    </div>
-                                    <!-- <div class="single_product_menu d-flex">
-                                        <h5>Sort by: </h5> -->
-                                        <select name="sort" onchange="this.form.submit()">
-                                            <option value="">Sort by</option>
-                                            <option value="price-asc">Price: Low to High</option>
-                                            <option value="price-desc">Price: High to Low</option>
-                                        </select>
-                                    <!-- </div> -->
-                                    <div class="single_product_menu d-flex align-items-center">
-                                        <h5>Show:</h5>
-                                        <div class="top_pagination ml-3">
-                                            <ul class="pagination-list">
-                                                <% for (let i = 1; i <= totalPages; i++) { %>
-                                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                                        <a href="?page=<%= i %>&limit=<%= limit %>" style="color: black; background-color: aliceblue;" class="page-link"><%= i %></a>
-                                                    </li>
-                                                <% } %>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="single_product_menu d-flex">
-                                        <form action="/shope?category=<%=categories%>&brand=<%=brand%>&search=<%=search%>&minPrice=<%=minPrice%>&maxPrice=<%=maxPrice%>" method="get" id="product-filter-form">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" value="<%=search%>" id="search" name="search" placeholder="Search" aria-describedby="inputGroupPrepend" >
-                                                <div class="input-group-prepend">
-                                                    <button type="submit" class="input-group-text" id="inputGroupPrepend"><i class="ti-search"></i></button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                        <!-- <script>
-                                            const form=document.getElementById('product-filter-form')
-                                            
-                                            form.addEventListener('submit',async(event)=>{
-                                                event.preventDefault()
-                                                const search=document.getElementById('search').value.trim()
-                                                const currentUrl=window.location.href
-                                                window.location.href=`?search=${search}`
-                                            })
-                                        </script> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-    
-                        <!-- Product Grid -->
-                        <div class="row align-items-center latest_product_inner">
-                            <% if (shop.length > 0) { %>
-                                <% shop.forEach((sh) => { %>
-                                    <div class="col-lg-4 col-sm-6">
-                                        <div class="single_product_item">
-                                            <a href="/single-product/<%= sh._id %>"><img src="/products/<%= sh.image1 %>" alt=""></a>
-                                            <div class="single_product_text">
-                                                <h4><%= sh.productname %></h4>
-                                                <h3>₹<%= sh.productprice %></h3>
-                                                <a id="add_cart" data-product-id="<%= sh._id %>" data-product-name="<%= sh.productname %>" data-product-price="<%= sh.productprice %>" onclick="addToCart('<%= sh._id %>')">+ Add to cart</a>
-                                                <a id="add_Wish" data-product-id="<%= sh._id %>" data-product-name="<%= sh.productname %>" data-product-price="<%= sh.productprice %>" onclick="addToWish('<%= sh._id %>')" class="wish-button">
-                                                    <i class="ti-heart wish"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            <% } else { %>
-                                <div class="col-lg-12">
-                                    <p>No Products found</p>
-                                </div>
-                            <% } %>
-                        </div>
-    
-                        <!-- Pagination -->
-                        <div class="col-lg-12">
-                            <div class="pageination">
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-center">
-                                        <% for (let i = 1; i <= totalPages; i++) { %>
-                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                                <a href="?page=<%= i %>&limit=<%= limit %>" style=" background-color: #fff; color: black;"  class="page-link"><%= i %></a>
-                                            </li>
-                                        <% } %>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Brands Filter -->
+                <aside class="left_widgets p_filter_widgets">
+                  <div class="l_w_title">
+                    <h3>Brands</h3>
+                  </div>
+                  <div class="widgets_inner">
+                    <ul class="list">
+                      <% if (brands.length > 0) { %>
+                        <% brands.forEach((br) => { %>
+                          <li>
+                            <input type="checkbox" name="brand[]" value="<%= br._id %>" 
+                                   id="brand_<%= br._id %>"
+                                   <%= brands.includes(br._id.toString()) ? 'checked' : '' %>
+                                   onchange="debouncedSubmit(this.form)">
+                            <label for="brand_<%= br._id %>"><%= br.name %></label>
+                          </li>
+                        <% }); %>
+                      <% } else { %>
+                        <li>No Brands found</li>
+                      <% } %>
+                    </ul>
+                  </div>
+                </aside>
+              </div>
             </div>
-        </section>
+    
+         
+    
+    
+            <!-- Product Listings -->
+            <div class="col-lg-9 col-md-8 col-sm-12">
+              <div class="product_top_bar d-flex justify-content-between align-items-center mb-3">
+                <div class="single_product_menu">
+                  <p><span><%= shop.length %></span> Product(s) Found</p>
+                </div>
+              </div>
+    
+              <!-- Sort Dropdown and Search in One Row -->
+              <div class="d-flex justify-content-between mb-4">
+                <!-- Sort Dropdown -->
+                <div class="d-flex align-items-center">
+                  <select name="sort" onchange="this.form.submit()" class="form-select">
+                    <option value="">Sort by</option>
+                    <option value="price-asc" <%= sort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+                    <option value="price-desc" <%= sort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+                  </select>
+                </div>
+    
+                <!-- Search Box -->
+                <div class="single_product_menu d-flex">
+                  <input type="text" name="search" value="<%= search %>" placeholder="Search" class="form-control" oninput="debouncedSubmit(this.form)">
+                </div>
+              </div>
+    
+              <!-- Product Grid -->
+              <div class="row align-items-center latest_product_inner">
+                <% if (shop.length > 0) { %>
+                  <% shop.forEach((sh) => { %>
+                  <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="single_product_item">
+                      <a href="/single-product/<%= sh._id %>">
+                        <img src="/products/<%= sh.image1 %>" alt="<%= sh.productname %>" class="img-fluid">
+                      </a>
+    
+                      <!-- Product Info -->
+                      <div class="product">
+                        <!-- Display Offer Badge if there's an offer -->
+                        <% if (sh.offer && sh.offer > 0) { %>
+                          <span class="badge badge-danger offer-badge">-<%= sh.offer %>% Off</span>
+                        <% } %>
+    
+                        <div class="single_product_text">
+                          <h4><%= sh.productname %></h4>
+                          <h3>
+                            <% if (sh.discountedPrice && sh.discountedPrice < sh.productprice) { %>
+                              <span class="original-price" style="text-decoration: line-through;">₹<%= sh.productprice.toFixed(2) %></span>
+                              <span>₹<%= sh.discountedPrice.toFixed(2) %></span>
+                            <% } else { %>
+                              ₹<%= sh.productprice.toFixed(2) %>
+                            <% } %>
+                          </h3>
+    
+                          <!-- Add to Cart Button with previous style -->
+                          <a href="" onclick="addToCart('<%= sh._id %>')" style="color: #000; text-decoration: none;">+ Add to cart</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="col-lg-12">
+                    <p>No Products found</p>
+                  </div>
+                <% } %>
+              </div>
+    
+              <!-- Pagination -->
+              <div class="col-lg-12">
+                <div class="pageination">
+                  <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                      <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                          <a href="?page=<%= i %>&limit=<%= limit %>" class="page-link" style="background-color: #fff; color: black;"><%= i %></a>
+                        </li>
+                      <% } %>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </form>
+    
+    <script>
+      let debounceTimer;
+      
+      function debouncedSubmit(form) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          form.submit();
+        }, 300);  
+      }
+    </script>
+    
     
   <!-- Best Sellers Section -->
 <section class="product_list best_seller">
@@ -250,7 +234,9 @@
           <div class="best_product_slider owl-carousel">
             <% bestSell.forEach(product => { %>
               <div class="single_product_item">
-                <img src="/products/<%=product.image1 %>" alt="">
+                <a href="/single-product/<%= product._id %>">
+                  <img src="/products/<%= product.image1 %>" alt="<%= product.productname %>" class="img-fluid">
+                    </a>
                 <div class="single_product_text">
                   <h4><%= product.productname %></h4>
                   <h3>$<%= product.productprice %></h3>

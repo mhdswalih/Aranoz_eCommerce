@@ -122,7 +122,7 @@
                         <td><%= copon.couponCode %></td>
                         <td><%= copon.percentage %>%</td>
                         <td><%= copon.minPrice %></td>
-                        <td><%= copon.maxRadeemAmount %></td>
+                        <td><%= copon.maxRedeemAmount %></td>
                         <td><%= new Date(copon.expiryDate).toLocaleDateString() %></td>
                         <td>
                           <div class="btn-group">
@@ -434,7 +434,7 @@
     document.getElementById('editCouponCode').value = couponObj.couponCode;
     document.getElementById('editDiscount').value = couponObj.percentage;
     document.getElementById('editMinPrice').value = couponObj.minPrice;
-    document.getElementById('editMaxPrice').value = couponObj.maxRadeemAmount;
+    document.getElementById('editMaxPrice').value = couponObj.maxRedeemAmount;
     document.getElementById('editValidTill').value = new Date(couponObj.expiryDate).toISOString().split('T')[0];
     $('#editCouponModal').modal('show');
 }

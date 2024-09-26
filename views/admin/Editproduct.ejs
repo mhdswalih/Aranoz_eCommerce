@@ -41,6 +41,7 @@
   .sidebar .nav .nav-item .nav-link .menu-title {
     color: #ffffff;
   }
+  
 </style>
 
 <div class="container-fluid page-body-wrapper">
@@ -87,74 +88,101 @@
       <div class="page-header"></div>
       <div class="row">
         <div class="col-md-8 grid-margin stretch-card">
-          <div class="card">
+          <div class="card shadow-sm">
             <div class="card-body">
-              <h4 class="card-title">Product Form</h4>
+              <h4 class="card-title">Edit Product</h4>
               <form class="forms-sample" id="productForm" action="/admin/Editproduct" method="POST" enctype="multipart/form-data">
+                
+                <!-- Product Name -->
                 <div class="form-group">
                   <label for="productName">Product Name</label>
-                  <input type="text" class="form-control" id="productName" placeholder="Product Name" value="<%= product.productname %>" name="productname" >
+                  <input type="text" class="form-control form-control-lg" id="productName" placeholder="Enter Product Name" value="<%= product.productname %>" name="productname" required>
                 </div>
+  
+                <!-- Product Price -->
                 <div class="form-group">
-                  <label for="productPrice">Product Price</label>
-                  <input type="number" class="form-control" id="productPrice" placeholder="Product Price" value="<%= product.productprice %>" name="productprice" step="0.01" >
+                  <label for="productPrice">Product Price ($)</label>
+                  <input type="number" class="form-control form-control-lg" id="productPrice" placeholder="Enter Product Price" value="<%= product.productprice %>" name="productprice" step="0.01" required>
                 </div>
+  
+                <!-- Product Quantity -->
                 <div class="form-group">
                   <label for="productQuantity">Product Quantity</label>
-                  <input type="number" class="form-control" id="productQuantity" placeholder="Product Quantity" value="<%= product.productquantity %>" name="productquantity">
+                  <input type="number" class="form-control form-control-lg" id="productQuantity" placeholder="Enter Quantity" value="<%= product.productquantity %>" name="productquantity" required>
                 </div>
+  
+                <!-- Product Description -->
                 <div class="form-group">
                   <label for="productDescription">Product Description</label>
-                  <textarea class="form-control" id="productDescription" placeholder="Product Description" name="productdescription" ><%= product.productdescription %></textarea>
+                  <textarea class="form-control form-control-lg" id="productDescription" placeholder="Enter Description" name="productdescription" rows="3" required><%= product.productdescription %></textarea>
                 </div>
+  
+                <!-- Brand Dropdown -->
                 <div class="form-group">
                   <label for="brand">Brand</label>
-                  <select class="form-control" id="brands" name="brands" >
+                  <select class="form-control form-control-lg" id="brands" name="brands">
                     <% brands.forEach(brand => { %>
                       <option value="<%= brand._id %>" <%= product.brand == brand._id ? 'selected' : '' %>><%= brand.name %></option>
                     <% }); %>
                   </select>
                 </div>
+  
+                <!-- Category Dropdown -->
                 <div class="form-group">
                   <label for="Categories">Category</label>
-                  <select class="form-control" id="Categories" name="Categories" >
+                  <select class="form-control form-control-lg" id="Categories" name="Categories">
                     <% category.forEach(category => { %>
                       <option value="<%= category._id %>" <%= product.category == category._id ? 'selected' : '' %>><%= category.name %></option>
                     <% }); %>
                   </select>
                 </div>
+  
+                <!-- Hidden Product ID -->
                 <input type="hidden" id="productId" value="<%= product._id %>">
-                <div id="crop-container">
-                  <img id="crop-image">
-                  <button type="button" style="display: none;" id="crop-button">Crop</button>
+  
+                <!-- Image Cropping Section -->
+                <div id="crop-container" class="my-3">
+                  <img id="crop-image" class="img-thumbnail">
+                  <button type="button" style="display: none;" id="crop-button" class="btn btn-outline-primary mt-2">Crop</button>
                 </div>
+  
+                <!-- File Inputs for Product Images -->
                 <div class="form-group">
                   <label for="image1">Product Image 1</label>
                   <input type="file" class="form-control" id="image1" name="image1">
-                  <img id="image-preview1" class="img-fluid mt-2"  style="height: 40px;">
                 </div>
                 <div class="form-group">
                   <label for="image2">Product Image 2</label>
                   <input type="file" class="form-control" id="image2" name="image2">
-                  <img id="image-preview2" class="img-fluid mt-2"  style="height: 40px;" >
                 </div>
                 <div class="form-group">
                   <label for="image3">Product Image 3</label>
                   <input type="file" class="form-control" id="image3" name="image3">
-                  <img id="image-preview3" class="img-fluid mt-2" style="height: 40px;">
                 </div>
-                <div class="form-group cropped-images" id="cropped-images"></div>
-                <button type="submit" class="btn btn-primary mr-2">Edit</button>
-                <button type="reset" class="btn btn-light">Cancel</button>
+  
+                <!-- Image Previews -->
+                <div class="form-group d-flex justify-content-between">
+                  <img src="/products/<%= product.image1 %>" id="image-preview1" class="img-thumbnail" style="width: 80px; height: 80px;">
+                  <img src="/products/<%= product.image2 %>" id="image-preview2" class="img-thumbnail" style="width: 80px; height: 80px;">
+                  <img src="/products/<%= product.image3 %>" id="image-preview3" class="img-thumbnail" style="width: 80px; height: 80px;">
+                </div>
+  
+                <!-- Error Message -->
+                <div id="submitError" style="color: red;"></div>
+  
+                <!-- Action Buttons -->
+                <div class="mt-4">
+                  <button type="submit" class="btn btn-primary btn-lg mr-2">Save Changes</button>
+                  <button type="reset" class="btn btn-outline-secondary btn-lg">Cancel</button>
+                </div>
               </form>
-              <div id="submitError" style="color: red;"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+  
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
@@ -162,6 +190,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector(".forms-sample");
+    const submitError = document.getElementById('submitError')
     const imageInputs = [
         document.getElementById("image1"),
         document.getElementById("image2"),
@@ -187,6 +216,7 @@
                 );
                 currentPreview.src = '';
                 currentInput = input;
+                
                 input.value = '';
 
                 const reader = new FileReader();
@@ -207,12 +237,8 @@
                 };
                 reader.readAsDataURL(file);
             } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Invalid Image",
-                    text: "Please select a valid image file (JPG, JPEG, PNG, GIF).",
-                });
-                input.value = ''; // Clear the invalid file
+                submitError.innerHTML = 'Please select a valid image file (jpg, jpeg, png, gif).'
+                input.value = ''; 
             }
         });
     });

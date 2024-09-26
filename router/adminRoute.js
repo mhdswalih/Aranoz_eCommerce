@@ -3,10 +3,13 @@ const session = require('express-session');
 const config = require('../config/config');
 const auth = require('../middleware/adminAuth');
 const adminController = require('../controller/AdminController');
-const { islogin } = require('../middleware/userAuth');
+
 const upload = require('../config/uploads'); 
+const Order = require('../model/orderModel')
 const CouponController = require('../controller/coupenController');
 const offerController = require('../controller/offerController');
+const salesController = require('../controller/salesController');
+const OrderController = require('../controller/orderController')
 
 const adminRouter = express.Router();
 
@@ -60,8 +63,17 @@ adminRouter.post('/Ediproduct/toggle',auth.adlogin,adminController.ListingUnlist
 
 //order
 adminRouter.get('/Order',auth.adlogin,adminController.OrderController);
-adminRouter.post('/order-status/:orderId',auth.adlogin,adminController.OrderStatus);
+adminRouter.post('/order-status/:orderId/product/:productId',auth.adlogin,adminController.OrderStatus);
+adminRouter.get('/orderView/:id',auth.adlogin,salesController.loadOrderDetails)
 
+//returnOrder
+adminRouter.get('/return',auth.adlogin,OrderController.returnManagement);
+
+// Reject return request
+adminRouter.post('/order-status/:orderId/product/:productId/return/:action', auth.adlogin, OrderController.handleReturnAction);
+adminRouter.post('/admin/order-status/:orderId/product/:productId/status',auth.adlogin,OrderController.handleReturnAction2)
+  
+  
 
 //Coupon 
 adminRouter.get('/Copon',auth.adlogin,CouponController.loadCopon);
@@ -72,7 +84,22 @@ adminRouter.delete('/coupons/:couponId',auth.adlogin,CouponController.deleteCoup
 //offer
 adminRouter.get('/Offer',auth.adlogin,offerController.loadOffer);
 adminRouter.post('/add-offer',auth.adlogin,offerController.addOffer);
+// Route to get items based on the selected category, brand, or product
+adminRouter.get('/get-items/:type',auth.adlogin,offerController.getOfferitems)
 
+
+
+  
+adminRouter.get('/get-offer/:id',auth.adlogin,offerController.getOfferDetails);
+adminRouter.get('/get-offer-items/:offerType',auth.adlogin,offerController.editgetOfferDetails)
+adminRouter.post('/edit-offer',auth.adlogin,offerController.updateOffer);
+adminRouter.delete('/dlt-offer/:offerId',auth.adlogin,offerController.DeleteOffer);
+adminRouter.post('/list-unlist/:id',auth.adlogin,offerController.activateAndDeactivateOffer)
+
+//salesReport
+adminRouter.get('/sales-report',auth.adlogin,salesController.loadSalesReport)
+adminRouter.get('/download-Pdf',auth.adlogin,salesController.downloadPdf)
+adminRouter.get('/download-excel',auth.adlogin,salesController.downloadExcel);
 // Extra Routes
 adminRouter.get('/chart', auth.adlogin, adminController.adchart);
 adminRouter.get('/blank-page', auth.adlogin, adminController.blankpage);

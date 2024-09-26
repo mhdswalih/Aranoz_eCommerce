@@ -1,100 +1,61 @@
 const mongoose = require("mongoose");
 
 const OrderSchema = mongoose.Schema({
-  OID: {
-    type: String,
-  },
-  userId: {
-    type: mongoose.Types.ObjectId,
-    ref: "User",
-  },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-  },
- 
+  OID: { type: String },
+  userId: { type: mongoose.Types.ObjectId, ref: "User" },
   products: [
     {
-      productId: {
-        type: mongoose.Types.ObjectId,
-        ref: "Product",
-      },
-      productquantity: {
-        type: Number,
-      },
-      totalAmount: {
-        type: Number,
-      },
-      status: {
+      productId: { type: mongoose.Types.ObjectId, ref: "Product" },
+      category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+      brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
+      productquantity: { type: Number },
+      originalPrice: { type: Number },
+      discountPrice: { type: Number, default: 0 },
+      totalAmount: { type: Number },
+      status: { type: String },
+      orderDate: { type: Date },
+      reasonForCancel: { type: String },
+      reasonForReturn: { type: String },
+      returnRequested: { type: Boolean, default: false },
+      orderStatus: {
         type: String,
+        enum: [
+          "Pending",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+          "Returning",
+          "Returned",
+          "Rejected",
+        ],
+        default: "Pending",
       },
-      deliveryDate: {
-        type: Date,
-      },
-      reasonForCancel: {
-        type: String,
-      },
-      reasonForReturn: {
-        type: String,
-      },
-      complete: {
-        type: Boolean,
-        default: false,
-      },
+      refundAmount: { type: Number },
+      
     },
   ],
-  addressId: {
-    type: mongoose.Types.ObjectId,
-    ref: "Address",
-  },
-  orderDate: {
-    type: Date,
-    default: Date.now,
-  },
-  taxCharge: {
-    type: Number,
-  },
-  deliveryCharge: {
-    type: Number,
-    default: 50,
-  },
-  totalAmount: {
-    type: Number,
-  },
-  discountAmount: {
-    type: Number,
-  },
-  offerDiscount: {
-    type: Number,
-  },
-  couponMinPurchase: {
-    type: Number,
-  },
-  couponMaxRedeem: {
-    type: Number,
-  },
+ 
+  addressId: { type: mongoose.Types.ObjectId, ref: "Address" },
+  orderDate: { type: Date, default: Date.now },
+  totalAmount: { type: Number },
+  discountAmount: { type: Number },
+  offerDiscount: { type: Number },
+  couponOfferPercent: { type: Number },
+  couponMaxRedeem: { type: Number },
   razorpayOrderId: { type: String },
   razorpayPaymentId: { type: String },
   razorpaySignature: { type: String },
+  paymentVerifiedAt: { type: Date },
+  selectedPaymentMethod: {
+    type: String,
+    enum: ["razorpay", "cod"],
+  },
   paymentStatus: {
     type: String,
     enum: ["Pending", "Paid", "Failed"],
     default: "Pending",
   },
-  paymentVerifiedAt: { type: Date },
-  orderStatus: {
-    enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
-    default: "Pending",
-    type: String,
-  },
-  couponOfferPercent: {
-    type: Number,
-  },
-  paymentMethod: {
-    type: String,
-  },
 });
 
 const Order = mongoose.model("Order", OrderSchema);
-
 module.exports = Order;

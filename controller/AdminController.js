@@ -5,6 +5,7 @@ const Category = require("../model/categoryModel");
 const Brand = require("../model/brandModel");
 const upload = require("../config/uploads");
 const Order = require('../model/orderModel')
+const Address = require('../model/AddressModel')
 
 // Load Login Page
 const loadLogin = async (req, res) => {
@@ -38,14 +39,172 @@ const verify = async (req, res) => {
 // Load Dashboard
 const Home = async (req, res) => {
   try {
-    res.render("admin/home");
+    const { dateFrom, dateTo, category, brand } = req.query;
+
+    
+    const filterCriteria = {};
+
+    
+    if (dateFrom && dateTo) {
+      filterCriteria.createdAt = {
+        $gte: new Date(dateFrom),
+        $lte: new Date(dateTo)
+      };
+    }
+
+    
+    if (category) {
+      filterCriteria['products.category'] = category;
+    }
+
+  
+    if (brand) {
+      filterCriteria['products.brand'] = brand;
+    }
+
+  
+    const bestsellProduct = await Order.aggregate([
+      { $match: filterCriteria },  
+      { $unwind: '$products' },
+      { 
+        $group: {
+          _id: '$products.productId',
+          orderCount: { $sum: '$products.productquantity' }
+        } 
+      },
+      { $sort: { orderCount: -1 } },
+      { $limit: 10 },
+      { 
+        $lookup: {
+          from: 'products', 
+          localField: '_id', 
+          foreignField: '_id', 
+          as: 'productDetails'
+        } 
+      },
+      { $unwind: '$productDetails' },
+      {
+        $lookup: {
+          from: 'categories', 
+          localField: 'productDetails.category', 
+          foreignField: '_id',
+          as: 'categoryDetails'
+        }
+      },
+      {
+        $lookup: {
+          from: 'brands', 
+          localField: 'productDetails.brand', 
+          foreignField: '_id',
+          as: 'brandDetails'
+        }
+      },
+      {
+        $project: {
+          productId: '$_id',
+          orderCount: 1,
+          productname: '$productDetails.productname',
+          productprice: '$productDetails.productprice',
+          image1: '$productDetails.image1',
+          category: { $arrayElemAt: ['$categoryDetails.name', 0] }, 
+          brand: { $arrayElemAt: ['$brandDetails.name', 0] } 
+        }
+      }
+    ]);
+
+  
+    const bestSellbrands = await Order.aggregate([
+      { $match: filterCriteria },
+      { $unwind: '$products' },
+      { 
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      { 
+        $group: {
+          _id: '$productDetails.brand',
+          orderCount: { $sum: '$products.productquantity' }
+        }
+      },
+      { $sort: { orderCount: -1 } },
+      { $limit: 10 },
+      { 
+        $lookup: {
+          from: 'brands', 
+          localField: '_id', 
+          foreignField: '_id', 
+          as: 'brandDetails'
+        }
+      },
+      { $unwind: '$brandDetails' },
+      {
+        $project: {
+          brandId: '$_id',
+          brandName: '$brandDetails.name',
+          orderCount: 1
+        }
+      }
+    ]);
+
+  
+    const bestSellCategories = await Order.aggregate([
+      { $match: filterCriteria },
+      { $unwind: '$products' },
+      { 
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      { 
+        $group: {
+          _id: '$productDetails.category',
+          orderCount: { $sum: '$products.productquantity' }
+        }
+      },
+      { $sort: { orderCount: -1 } },
+      { $limit: 10 },
+      { 
+        $lookup: {
+          from: 'categories', 
+          localField: '_id', 
+          foreignField: '_id', 
+          as: 'categoryDetails'
+        }
+      },
+      { $unwind: '$categoryDetails' },
+      {
+        $project: {
+          categoryId: '$_id',
+          categoryName: '$categoryDetails.name',
+          orderCount: 1
+        }
+      }
+    ]);
+
+    const notifications = await Order.find({ 'products.orderStatus': 'Returning' });
+
+  
+    res.render("admin/home", { notifications, bestsellProduct, bestSellbrands, bestSellCategories });
+
   } catch (error) {
     console.error("Error rendering the dashboard:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// Render Chart Page
+
+
+
+
 const adchart = async (req, res) => {
   try {
     res.render("admin/chart");
@@ -257,7 +416,7 @@ const AddProduct = async (req, res) => {
       console.log('update.......',updateFields)
   
       const product = await Product.findByIdAndUpdate(productId, updateFields);
-  
+      
       if (!product) {
         return res.status(404).json({ success: false, message: 'Product not found' });
       }
@@ -563,24 +722,40 @@ const LoadProducts = async (req, res) => {
     const limit = 5; 
     const skip = (page - 1) * limit; 
 
+    const searchQuery = req.query.search ? req.query.search.trim() : ''; 
+
     console.log('Fetching products...');
-    const totalProducts = await Product.countDocuments(); 
-    const products = await Product.find({})
+    
+    
+    const searchRegex = new RegExp(searchQuery, 'i'); 
+
+  
+    const totalProducts = await Product.countDocuments({
+      productname: searchRegex 
+    }); 
+
+    const products = await Product.find({
+      productname: searchRegex 
+    })
       .populate('category')
       .populate('brand')
+      .sort({ createdAt: -1 }) 
       .skip(skip)
       .limit(limit);
+
     console.log('Fetched products:', products);
     res.render('admin/Products', {
       products,
       currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit), 
+      totalPages: Math.ceil(totalProducts / limit),
+      searchQuery 
     });
   } catch (error) {
     console.error('Error loading product list:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 //load edit Product 
 
@@ -632,38 +807,64 @@ const adminLogout = async (req,res) =>{
 
 const OrderController = async (req, res) => {
   try {
-      
-    const orders = await Order.find().populate('products.productId').populate('userId')
-    
-    res.render('admin/Order', { orders });
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5; 
+    const skip = (page - 1) * limit ; 
+
+    const orders = await Order.find()
+      .populate('products.productId')
+      .populate('userId')
+      .skip(skip)
+      .limit(limit)
+      .sort({orderAt:-1})
+
+    const count = await Order.countDocuments(); 
+    const totalPages = Math.ceil(count / limit); 
+
+    const userId = req.session.user;
+    const addr = await Address.findById(userId);
+
+    res.render('admin/Order', { orders, addr, currentPage: page, totalPages });
   } catch (error) {
     console.log(error);
   }
 };
-//orderStatus
 
-const OrderStatus  = async (req,res)=>{
+//orderStatus
+const OrderStatus = async (req, res) => {
   try {
-    const {orderId} = req.params;
-    // console.log(orderId,req.body,'rew');    
-    const {orderStatus} = req.body;
-  
-      const status = await Order.findById(orderId)
-     if(status.orderStatus ==="Cancelled"){
-      return
-     }else{
-      status.orderStatus = orderStatus
+    const { orderId, productId } = req.params;
+    const { orderStatus } = req.body;
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
     }
-    const updatedOrder = status.save()
-    if(updatedOrder){
-     res.json({messege:'Order Status Changed Successfully',order:updatedOrder})
-    }else{
-     res.json({messege:'something went wrong'})
+
+    if (order.products.every(product => product.orderStatus === "Cancelled")) {
+      return res.status(400).json({ message: 'Order is already cancelled and cannot be updated' });
     }
+
+    if (productId) {
+      const product = order.products.find(p => p.productId.toString() === productId);
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found in order' });
+      }
+      product.orderStatus = orderStatus;
+    } else {
+      order.products.forEach(product => {
+        product.orderStatus = orderStatus;
+      });
+    }
+
+    const updatedOrder = await order.save();
+    res.json({ message: 'Order Status Changed Successfully', order: updatedOrder });
   } catch (error) {
-    console.log(error)
+    console.error('Error updating order status:', error);
+    res.status(500).json({ message: 'Something went wrong', error });
   }
-}
+};
+
 
 
 module.exports = {
