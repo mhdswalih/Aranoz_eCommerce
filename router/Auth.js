@@ -13,7 +13,7 @@ Router.get('/google/callback',
     try {
       req.session.user = req.user._id
       const user = await User.findById(req.session.user); 
-          console.log('this is user',user);
+       
           
       if (user && user.isBlocked === false) {
         return res.redirect('/');  

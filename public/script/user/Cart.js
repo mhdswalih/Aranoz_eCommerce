@@ -11,30 +11,30 @@ function showSnackbar(message) {
   }
 }
 
-async function addToCart(button) {
-  const productId = button.getAttribute('data-product-id');
-  const userId = button.getAttribute('data-user-id');
-  const quantity = 1;
+// async function addToCart(button) {
+//   const productId = button.getAttribute('data-product-id');
+//   const userId = button.getAttribute('data-user-id');
+//   const quantity = 1;
 
-  try {
-    const response = await fetch('/cart', {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ productId, userId, productquantity: quantity })
-    });
+//   try {
+//     const response = await fetch('/cart', {
+//       method: "POST",
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({ productId, userId, productquantity: quantity })
+//     });
 
-    if (response.ok) {
-      showSnackbar('Added to cart');
-    } else {
-      showSnackbar('Failed to add to cart');
-    }
-  } catch (error) {
-    console.log(error);
-    showSnackbar('Error adding to cart');
-  }
-}
+//     if (response.ok) {
+//       showSnackbar('Added to cart');
+//     } else {
+//       showSnackbar('Failed to add to cart');
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     showSnackbar('Error adding to cart');
+//   }
+// }
 
 async function removeFromCart(productId) {
   try {
@@ -59,6 +59,8 @@ async function removeFromCart(productId) {
 }
 
 async function incrementCount(productId) {
+  console.log(productId);
+  
   try {
     const response = await fetch('/stockInc', {
       method: "POST",
@@ -72,7 +74,8 @@ async function incrementCount(productId) {
       const result = await response.json();
       const quantityInput = document.getElementById(`quantity-${productId}`);
       quantityInput.value = result.newQuantity; 
-      showSnackbar('Increment successful');
+       
+      showSnackbar(result.message||'Increment successful');
       setTimeout(() => location.reload(), 3500);
     } else {
       showSnackbar('Failed to increment');

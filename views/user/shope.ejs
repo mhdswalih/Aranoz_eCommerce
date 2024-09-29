@@ -353,18 +353,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     <!--::footer_part end::-->
 
     <script>
-function showSnackbar(message) {
-  const snackbar = document.getElementById('snackbar');
-  if (snackbar) {
-    snackbar.textContent = message;
-    snackbar.className = "show";
-    setTimeout(function() { 
-      snackbar.className = snackbar.className.replace("show", ""); 
-    }, 3000); 
-  } else {
-    console.error('Snackbar element not found');
-  }
-}
+
 
 async function addToCart(productId) {
   console.log(productId);
@@ -381,7 +370,9 @@ async function addToCart(productId) {
     });
 
     if (response.ok) {
-      showSnackbar('Added to cart');
+      const data = await response.json()
+      showSnackbar(data.messege||'Added to cart');
+      setTimeout(()=>window.location.reload(),3500)
     } else {
       showSnackbar('Failed to add to cart');
     }
@@ -394,7 +385,7 @@ async function addToCart(productId) {
     </script>
     <!-- jquery plugins here-->
     <script src="js/jquery-1.12.1.min.js"></script>
-    <script src="/public/script/user/Cart.js"></script>
+    <script src="/script/user/Cart.js"></script>
     <script src="/script/user/WishList.js"></script>
     <!-- popper js -->
     <script src="js/popper.min.js"></script>
@@ -423,6 +414,9 @@ async function addToCart(productId) {
     <script src="/script/user/productFilter.js"></script>
     <!-- custom js -->
     <script src="js/custom.js"></script>
+    <script>
+   
+    </script>
 </body>
 
 </html>

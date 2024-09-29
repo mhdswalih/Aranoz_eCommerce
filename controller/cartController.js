@@ -21,7 +21,7 @@ const cart = async (req, res) => {
     const user = await User.findById(userId);
     const userCart = await Cart.findOne({ userId }).populate('products.productId');
     
-    console.log('User Cart:', userCart);
+   
 
     // Fetch valid offers
     const offers = await Offer.find({
@@ -29,7 +29,7 @@ const cart = async (req, res) => {
       endDate: { $gte: now }
     });
 
-    console.log('Valid Offers:', offers);
+   
     
     if (!userCart) {
       return res.render('user/cart', { user, cart: { products: [] } });
@@ -38,7 +38,7 @@ const cart = async (req, res) => {
     // Apply offers to cart products
     userCart.products = userCart.products.map(product => {
       let discountedPrice = product.productId.productprice; 
-           console.log('this is from cart',discountedPrice);
+         
            
       for (const offer of offers) {
        
@@ -57,7 +57,7 @@ const cart = async (req, res) => {
         }
       }
 
-      console.log('Final Discounted Price:', discountedPrice);
+     
       
     
       return {
@@ -99,7 +99,7 @@ const Addtocart = async (req, res) => {
     }
 
     await userCart.save();
-    res.status(200).json({ success: true, message: "Product added to cart successfully" });
+    res.status(200).json({ success: true, message: "Added To Cart" });
   } catch (error) {
     console.error('Error Add To cart:', error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -141,17 +141,20 @@ const increaseStock = async (req, res) => {
   try {
     const { productId } = req.body;
     const userId = req.session.user;
-    const userCart = await Cart.findOne({ userId });
-
+    const userCart = await Cart.findOne({ userId }).populate('products.productId');
+    
     if (!userCart) {
       return res.status(404).json({ success: false, message: "Cart not found" });
     }
 
     const itemIndex = userCart.products.findIndex(item => item._id.toString() === productId);
-
+     
+    
     if (itemIndex > -1) {
-      if (userCart.products[itemIndex].productquantity < 5) {
+      if (userCart.products[itemIndex].productquantity < 5 && userCart.products[itemIndex].productquantity < userCart.products[itemIndex].productId.productquantity) {
+        
         userCart.products[itemIndex].productquantity++;
+      
         await userCart.save();
         return res.status(200).json({ success: true, newQuantity: userCart.products[itemIndex].productquantity });
       } else {
@@ -232,8 +235,7 @@ const AddtoWishlist = async (req, res) => {
     if (itemIndex > -1) {
       return res.status(200).json({ success: false, message: "Product already exists in wishlist" });
     } else {
-      const productquantity = quantity;
-      userWishlist.products.push({ productId, productquantity });
+      userWishlist.products.push({ productId, productquantity:quantity });
       
       await userWishlist.save(); 
       return res.status(200).json({ success: true, message: "Product added to wishlist successfully" });
@@ -291,7 +293,7 @@ const AddtoWishlist = async (req, res) => {
       const products = await Product.find(filterProduct)
         .populate('category')
         .populate('brand');
-        console.log('this is products',products)
+      
       const categories = await Category.find({});
       const brands = await Brand.find({});
   

@@ -29,7 +29,8 @@ async function addToWish(button) {
       });
   
       if (response.ok) {
-        showSnackbar('Added to WishList');
+        const data = await response.json()
+        showSnackbar(data.message ||'Added to WishList');
       } else {
         showSnackbar('Failed to add to WishList');
       }

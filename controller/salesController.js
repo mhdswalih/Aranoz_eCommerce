@@ -10,11 +10,10 @@ const loadSalesReport = async (req, res) => {
 
         let query = { 'products.orderStatus': 'Delivered' };
 
-        // Check if both startDate and endDate are provided
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
-            // Set the end date to the end of the day
+           
             end.setHours(23, 59, 59, 999);
 
             query.orderDate = {
@@ -59,7 +58,7 @@ const loadSalesReport = async (req, res) => {
             }
         ]);
 
-        console.log('this is sales report', SalesReport);
+       
         
         let totalSale = SalesReport.length;
         res.render('admin/SalesReport', { SalesReport, totalSale });
@@ -309,7 +308,7 @@ const downloadExcel = async (req, res) => {
             });
         });
 
-        // Add a total row at the end of the worksheet
+     
         worksheet.addRow({
             date: 'Total',
             productName: '',

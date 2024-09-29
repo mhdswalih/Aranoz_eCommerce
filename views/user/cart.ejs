@@ -39,7 +39,7 @@
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody></tbody>
               <% if (cart.products.length > 0) { %>
                 <% cart.products.forEach(product => { %>
                   <tr>
@@ -60,14 +60,23 @@
                       <% } else { %>
                         ₹<%= product.productId.productprice.toFixed(2) %>
                       <% } %>
+                          <% if (product.productId.productquantity <= 0) { %>
+                          <!-- Show OUT OF STOCK message if stock is 0 or less -->
+                          <span  style="color: red; display: flex; ">OUT OF STOCK</span>
+                        <% } %>
                       
                     </td>
                     
                     <td>
                       <div class="product_count">
                         <span class="input-number-decrement"> <i class="ti-angle-down" onclick="decrementCount('<%= product._id %>')"></i></span>
-                        <input class="input-number" type="text" id="quantity-<%= product._id %>" value="<%= product.productquantity %>" max="5" min="1" disabled>
-                        <span class="input-number-increment" onclick="incrementCount('<%= product._id %>')"> <i class="ti-angle-up"></i></span>
+                        <input type="text" id="quantity-<%= product._id %>" value="<%= product.productquantity %>" max="5" min="1" disabled>
+                        <span class="input-number-increment" onclick="incrementCount('<%= product._id %>')"> 
+                          <i class="ti-angle-up"></i>
+                        </span>
+                        
+                    
+                        
                       </div>
                     </td>
                     <td>
@@ -109,11 +118,7 @@
                   </h5>
                 </td>
               </tr>
-            </tbody>
-            
-            
-            
-                           
+            </tbody>         
             
                   <div class="shipping_box">
                     <!-- <ul class="list">

@@ -17,7 +17,7 @@ const loadOffer = async (req, res) => {
         const brands = await Brand.find();
         const categories = await Category.find();
         const products = await Product.find();
-        console.log(`Fetched ${offers.length} offers, ${brands.length} brands, ${categories.length} categories, and ${products.length} products.`);
+       
       
         res.render('admin/offer', {
             offers,
@@ -42,7 +42,7 @@ const addOffer = async (req, res) => {
             items // IDs of products, categories, or brands
         } = req.body;
 
-        console.log('Request body:', req.body);
+     
 
         // Validate required fields
         if (!offerName || !discountPercentage || !startDate || !endDate || !offerType) {
@@ -73,7 +73,7 @@ const addOffer = async (req, res) => {
                 return res.status(400).json({ message: 'Some categories are invalid' });
             }
             offerData.category = items[0]; 
-            console.log('Categories:', categories);
+          
 
         
             products = await Product.find({ category: { $in: items } });
@@ -157,7 +157,7 @@ const getOfferitems = async(req,res)=>{
 
 const editgetOfferDetails = async (req, res) => {
     const { offerType } = req.params;
-    console.log('Received offer type:', offerType);
+   
 
     // Validate the offer type
     if (!['brand', 'category', 'product'].includes(offerType)) {
@@ -169,15 +169,15 @@ const editgetOfferDetails = async (req, res) => {
 
         if (offerType === 'brand') {
             items = await Brand.find().select('_id name');
-            console.log(`${items.length} brands found`, items);
+       
             
         } else if (offerType === 'category') {
             items = await Category.find().select('_id name');
-            console.log(`${items.length} categories found`, items);
+            
             
         } else if (offerType === 'product') {
             items = await Product.find().select('_id productname');
-            console.log(`${items.length} products found`, items);
+          
             
         }
 
@@ -195,12 +195,12 @@ const editgetOfferDetails = async (req, res) => {
 // offerController.js
 const getOfferDetails = async (req, res) => {
     const { id } = req.params; // Make sure to pass offer ID from the frontend
-    console.log('Fetching offer details for ID:', id);
+  
 
     try {
        
         let offer = await Offer.findById(id).populate('category').populate('brands').populate('products');
-         console.log('this is offerr  ',offer);
+       
          
         if (!offer) {
             return res.status(404).json({ message: 'Offer not found' });
@@ -371,7 +371,7 @@ const DeleteOffer = async (req, res) => {
 const activateAndDeactivateOffer = async (req, res) => {
   try {
     const { id } = req.params;
-   console.log('this is offer id',id);
+
    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: 'Invalid Offer ID format' });

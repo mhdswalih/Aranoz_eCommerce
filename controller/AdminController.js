@@ -276,27 +276,18 @@ const Users = async (req, res) => {
 // Block and Unblock User
 const BlockAndUnBlockuser = async (req, res) => {
   try {
-    console.log(
-      "Received request to block/unblock user with ID:",
-      req.params.id
-    );
+  
     const user = await User.findById(req.params.id);
     if (!user) {
-      console.log("User not found");
+     
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    console.log(
-      "Current user status:",
-      user.isBlocked ? "Blocked" : "Not Blocked"
-    );
+  
     user.isBlocked = !user.isBlocked;
     await user.save();
-    console.log(
-      "Updated user status:",
-      user.isBlocked ? "Blocked" : "Not Blocked"
-    );
+   
     res.json({ success: true, isBlocked: user.isBlocked });
   } catch (error) {
     console.error("Error blocking/unblocking user:", error);
@@ -320,7 +311,7 @@ const loadAddproduct = async (req, res) => {
     const brands = await Brand.find({delete: false, isListed: true});
     const categories = await Category.find({delete: false, isListed: true});
 
-    console.log('cats  ',categories);
+   
     res.render("admin/AddProducts",{brands, categories});
   } catch (error) {
     console.log("Error loading add product page", error);
@@ -413,7 +404,7 @@ const AddProduct = async (req, res) => {
           }
         }
       }
-      console.log('update.......',updateFields)
+  
   
       const product = await Product.findByIdAndUpdate(productId, updateFields);
       
@@ -520,7 +511,7 @@ const CategoryEdit = async (req, res) => {
       name:Categoryname
     }
    },{new :true});
-   console.log(Categorie)
+
     if(!Categorie){
       return res.status(404).json({success:false,messege:'Categorie not found'})
     }
@@ -561,7 +552,7 @@ const toggleCategoryListing = async (req, res) => {
   try {
     const categoryId = req.params.id;
     const category = await Category.findById(categoryId);
-    console.log(category)
+ 
     if (!category) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
@@ -592,7 +583,7 @@ const loadBrand = async (req, res) => {
 const AddBrand = async (req, res) => {
   try {
     const { Brandname } = req.body;
-    console.log('Brandname:', Brandname); 
+  
     if (!Brandname) {
         return res.status(400).send({ message: "Brand name is required" });
     }
@@ -619,7 +610,7 @@ const Brands = async (req, res) => {
     const limit = 5;
     const skip = (page - 1) * limit; 
 
-    console.log('Fetching brands...');
+  
     const totalBrands = await Brand.countDocuments({ delete: false }); 
     const brands = await Brand.find({ delete: false })
       .skip(skip)
@@ -724,7 +715,7 @@ const LoadProducts = async (req, res) => {
 
     const searchQuery = req.query.search ? req.query.search.trim() : ''; 
 
-    console.log('Fetching products...');
+   
     
     
     const searchRegex = new RegExp(searchQuery, 'i'); 
@@ -743,7 +734,7 @@ const LoadProducts = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log('Fetched products:', products);
+   
     res.render('admin/Products', {
       products,
       currentPage: page,
@@ -765,7 +756,7 @@ const loadEditproduct = async (req,res) =>{
     const product= await Product.findById(id)
     const category = await Category.find()
     const brands = await Brand.find()
-    console.log(category,brands)
+
     res.render('admin/Editproduct',{product,category,brands})
   } catch (error) {
     console.log('Error To load Edit Product',error)
@@ -781,14 +772,14 @@ const ListingUnlistProduct = async (req, res) => {
     const { productId } = req.body;
 
     const product = await Product.findById(productId);
-    console.log(product)
+   
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
-    console.log('hdsf')
+   
     product.listed = !product.listed;
     await product.save();
-    console.log('adasd')
+
     res.status(200).json({ success: true, message: `Product has been ${product.listed ? 'listed' : 'unlisted'}.`, product });
   } catch (error) {
     console.error(error);

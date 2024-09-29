@@ -109,7 +109,7 @@ const applyCoupon = async (req, res) => {
       couponCode: coupenCode,
       delete: false,
     });
-    console.log(coupon, "this is coupon");
+    
 
     if (!coupon) {
       return res
@@ -184,7 +184,7 @@ const applyCoupon = async (req, res) => {
 
     cart.discountAmount = discount;
     cart.totalAmount = newTotal;
-    console.log("newTotal amount this", newTotal, discount);
+  
 
     await cart.save();
 
@@ -1090,21 +1090,21 @@ const downloadPdfInvoice = async (req, res) => {
 const repayOption = async (req, res) => {
   const { itemId, productId, orderId, amount } = req.body;
 
-  console.log("Repay Request Received: ", req.body);
+
 
 
   if (!itemId || !productId || !orderId || !amount) {
-      console.log("Missing required fields");
+     
       return res.status(400).json({ message: "Invalid request data." });
   }
 
   try {
    
       const existingOrder = await Order.findById(orderId);
-      console.log("Existing Order: ", existingOrder);
+  
 
       if (!existingOrder) {
-          console.log("Order not found for ID: ", orderId);
+         
           return res.status(404).json({ message: "Order not found." });
       }
 
@@ -1112,11 +1112,11 @@ const repayOption = async (req, res) => {
       existingOrder.paymentStatus = "Paid";
       await existingOrder.save();
 
-      console.log("Order updated successfully with new product details.");
+     
 
      
       const razorpayOrder = await createRazorpayOrder(amount); 
-  console.log('this is razor pay Order',razorpayOrder);
+
   
       
       res.status(200).json({ message: "Payment successful", order_id: razorpayOrder.id });

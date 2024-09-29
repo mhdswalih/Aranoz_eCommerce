@@ -115,10 +115,7 @@
       err.innerHTML = '';
 
       // Date validation to ensure start date is not after end date
-      if (!startDate || !endDate) {
-          err.innerHTML = 'Please select both start and end dates.';
-          return;
-      }
+
 
       if (new Date(startDate) > new Date(endDate)) {
           err.innerHTML = 'Start date cannot be after end date.';

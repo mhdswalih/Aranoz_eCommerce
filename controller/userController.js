@@ -48,7 +48,6 @@ const sendOtpToMail = async (email, otp) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`OTP Sent to ${email}`);
   } catch (error) {
     console.error("Error sending OTP email:", error.message);
     throw new Error("Failed to send OTP email");
@@ -69,8 +68,8 @@ const generateOTP = () =>
 
 const resendOTP = async (req, res) => {
   const { email } = req.body;
-  console.log("email from req", req.body);
-  console.log("Email from session:", req.session.email);
+ 
+
 
   if (!email) {
     return res.status(400).json({ message: "Email is required" });
@@ -84,7 +83,6 @@ const resendOTP = async (req, res) => {
     const newOtp = generateOTP();
     req.session.otp_expire = Date.now() + 60000;
     req.session.otp = newOtp;
-    console.log(`Resending OTP to ${email} ${newOtp}`);
     await sendOtpToMail(email, newOtp);
     res.status(200).json({ message: "OTP has been resent" });
   } catch (error) {
@@ -449,7 +447,7 @@ const loadeProfile = async (req, res) => {
 //Edit-user
 const Edituser = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
+   
     const user = await User.find({ user: req.session.user });
     if (!user) {
       res.status(404).json({ message: "User not found" });
@@ -484,7 +482,7 @@ const Edituser = async (req, res) => {
       { new: true }
     );
 
-    console.log("Update Result:", update);
+  
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -518,7 +516,7 @@ const changePassword = async (req, res) => {
 const loadAddress = async (req, res) => {
   try {
     const user = await User.findById(req.session.user);
-    console.log(user);
+ 
     if (!user) {
       return res.status(400).json({ message: "User Not Found" });
     }
@@ -627,7 +625,7 @@ const EditAddress = async (req, res) => {
       },
       {new : true},
     );
-    console.log('this is address',address)
+  
     if (!address) {
       return res.status(404).json({ message: "Address not found" });
     }
@@ -725,7 +723,7 @@ const loadReset = async (req, res) => {
 
 const ResetPassword = async (req, res) => {
   try {
-    console.log(req.body,req.params.token);
+
       const user = await User.findOne({
           resetPasswordToken: req.params.token,
           resetPasswordExpires: { $gt: Date.now() }

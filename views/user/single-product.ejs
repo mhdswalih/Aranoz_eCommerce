@@ -752,7 +752,8 @@ async function addToCart(productId) {
     });
 
     if (response.ok) {
-      showSnackbar('Added to cart');
+      const data = await response.json()
+      showSnackbar(data.message||'Added to cart');
     } else {
       showSnackbar('Failed to add to cart');
     }
@@ -762,33 +763,7 @@ async function addToCart(productId) {
   }
 }
 
-async function addToWish(button) {
-    const productId = button.getAttribute('data-product-id');
 
-    const quantity = 1;
-  
-    try {
-      const response = await fetch('/add-wishList', {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          productId,
-          productquantity: quantity,
-        })
-      });
-  
-      if (response.ok) {
-        showSnackbar('Added to WishList');
-      } else {
-        const data = await response.json()
-        showSnackbar('Failed to add to WishList'+data.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
   
   // Attach event listener to all wish buttons
   document.querySelectorAll('.wish-button').forEach(button => {
