@@ -35,7 +35,7 @@ const cart = async (req, res) => {
       return res.render('user/cart', { user, cart: { products: [] } });
     }
     
-    // Apply offers to cart products
+ 
     userCart.products = userCart.products.map(product => {
       let discountedPrice = product.productId.productprice; 
          
@@ -51,7 +51,7 @@ const cart = async (req, res) => {
                  product.productId.brand._id.equals(offer.brands)) {
           discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
         }
-        // Apply specific product offer
+       
         else if (offer.offerType === 'product' && product.productId._id.equals(offer.products[0])) {
           discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
         }
@@ -203,20 +203,59 @@ const decreaseStock = async (req, res) => {
 
 //WishList
 
-const wishlist = async (req,res) =>{
+const wishlist = async (req, res) => {
   try {
     const userId = req.session.user;
-    const user = await User.findOne({userId:req.session.user})
-    const Wishlist = await WishList.findOne({userId}).populate('products.productId');
-    if(!Wishlist){
-      return res.render('user/Wishlist',{user,Wishlist:{products : []}})
-    }
-     return res.render('user/Wishlist',{user,Wishlist});
-  } catch (error) {
-    console.log(error)
+    const now = new Date();
+
+  
+    const user = await User.findById(userId);
+    const userWishlist = await WishList.findOne({ userId }).populate('products.productId');
+
     
+    const offers = await Offer.find({
+      startDate: { $lte: now },
+      endDate: { $gte: now }
+    });
+
+    if (!userWishlist) {
+      return res.render('user/wishlist', { user, wishlist: { products: [] } });
+    }
+
+ 
+    userWishlist.products = userWishlist.products.map(product => {
+      let discountedPrice = product.productId.productprice;
+
+    
+      for (const offer of offers) {
+        if (offer.offerType === 'category' && product.productId.category && 
+            product.productId.category._id.equals(offer.category)) {
+          discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
+        }
+       
+        else if (offer.offerType === 'brand' && product.productId.brand && 
+                 product.productId.brand._id.equals(offer.brands)) {
+          discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
+        }
+    
+        else if (offer.offerType === 'product' && offer.products.includes(product.productId._id)) {
+          discountedPrice = discountedPrice - (discountedPrice * (offer.discountPercentage / 100));
+        }
+      }
+
+      return {
+        ...product.toObject(),
+        discountedPrice: discountedPrice.toFixed(2) 
+      };
+    });
+
+    res.render('user/wishlist', { user, wishlist: userWishlist });
+  } catch (error) {
+    console.error("Error in wishlist:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
-}
+};
+
 
 // Add To Wish List 
 const AddtoWishlist = async (req, res) => {

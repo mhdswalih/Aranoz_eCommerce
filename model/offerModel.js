@@ -42,6 +42,10 @@ const offerSchema = new mongoose.Schema({
     discountedPrice: {
         type : String
     },
+    isListed : {
+        type : Boolean,
+        default : true
+    }
 }, { timestamps: true });
 
 const Offer = mongoose.model('Offer', offerSchema);

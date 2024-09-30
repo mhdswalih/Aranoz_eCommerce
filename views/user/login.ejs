@@ -27,7 +27,33 @@
     <!-- SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.1/dist/sweetalert2.min.css">
 </head>
+ <style>
+    .google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  color: #444;
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  width: 450px; /* Set a width if desired */
+}
 
+.google-btn:hover {
+  background-color: #f7f7f7;
+}
+
+.google-icon {
+  margin-right: 10px;
+}
+
+ </style>
 <body>
     <!-- Header part start -->
     <header class="main_menu home_menu">
@@ -153,7 +179,16 @@
                                     <a class="lost_pass" href="/forgetPassword">Forget password?</a>
                                     <div class="text-center ps-4">
                                         <p class="or">or</p>
-                                        <a href="/Auth/google" class="btn_G">Log in with Google</a>
+                                        <a href="/Auth/google" class="google-btn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" class="google-icon">
+                                              <path fill="#4285F4" d="M24 9.5c3.34 0 5.48 1.46 6.74 2.69l4.91-4.91C32.87 4.34 28.88 2 24 2 14.9 2 7.6 8.48 5.12 17.02l5.94 4.64C12.17 15.41 17.62 9.5 24 9.5z"></path>
+                                              <path fill="#34A853" d="M46.6 24.51c0-1.2-.1-2.07-.31-3h-22v6.53h12.9c-.26 1.34-1.62 3.37-3.48 4.74l5.44 4.26C43.5 33.08 46.6 29.26 46.6 24.51z"></path>
+                                              <path fill="#FBBC05" d="M12.07 28.64c-1.53-1.02-2.8-2.51-3.48-4.38l-5.94 4.63C5.27 33.72 10.27 38.5 17.06 38.5c4.88 0 8.73-1.6 11.64-4.36l-5.44-4.26c-1.5 1.03-3.42 1.66-6.19 1.66-4.79-.01-8.89-3.23-10.04-7.9z"></path>
+                                              <path fill="#EA4335" d="M24 46c6.3 0 11.59-2.08 15.46-5.66l-5.44-4.26c-2.38 1.61-5.4 2.61-10.02 2.61-6.2 0-11.45-4.18-13.34-9.97l-5.94 4.64C7.58 41.89 15.32 46 24 46z"></path>
+                                            </svg>
+                                            Log in with Google
+                                          </a>
+                                          
                                     </div>
                                 </div>
                             </form>
