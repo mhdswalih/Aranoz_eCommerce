@@ -1090,41 +1090,62 @@ const downloadPdfInvoice = async (req, res) => {
 const repayOption = async (req, res) => {
   const { itemId, productId, orderId, amount } = req.body;
 
-
-
-
   if (!itemId || !productId || !orderId || !amount) {
-     
-      return res.status(400).json({ message: "Invalid request data." });
+    return res.status(400).json({ message: "Invalid request data." });
   }
 
   try {
-   
-      const existingOrder = await Order.findById(orderId);
-  
+    const existingOrder = await Order.findById(orderId);
+    if (!existingOrder) {
+      return res.status(404).json({ message: "Order not found." });
+    }
 
-      if (!existingOrder) {
-         
-          return res.status(404).json({ message: "Order not found." });
+    // Find the specific product in the order
+    const productInOrder = existingOrder.products.find(
+      (item) => item.productId.toString() === productId
+    );
+    if (!productInOrder) {
+      return res.status(404).json({ message: "Product not found in the order." });
+    }
+
+    // Find the cart for the user
+    const userCart = await Cart.findOne({ userId: existingOrder.userId });
+    console.log('this is from user cart',userCart)
+    if (userCart) {
+      for (let item of userCart.products) {
+        const product = await Product.findById(item.productId);
+        console.log('this is product',product);
+        
+        if (product) {
+          product.productquantity -= item.productquantity;
+          if (product.productquantity < 0) {
+            return res.status(400).json({ message: "Insufficient product stock." });
+          }
+          await product.save();
+        }
       }
+      
+      await userCart.save(); 
+    } else {
+      return res.status(404).json({ message: "Cart not found." });
+    }
+
+   
+    existingOrder.paymentStatus = "Paid";
+    existingOrder.selectedPaymentMethod = "razorpay";
+    await existingOrder.save(); 
 
     
-      existingOrder.paymentStatus = "Paid";
-      await existingOrder.save();
+    const razorpayOrder = await createRazorpayOrder(amount);
 
-     
-
-     
-      const razorpayOrder = await createRazorpayOrder(amount); 
-
-  
-      
-      res.status(200).json({ message: "Payment successful", order_id: razorpayOrder.id });
+   
+    res.status(200).json({ message: "Payment successful", order_id: razorpayOrder.id });
   } catch (error) {
-      console.error("Error processing repayment:", error);
-      return res.status(500).json({ message: "Server error." });
+    console.error("Error processing repayment:", error);
+    return res.status(500).json({ message: "Server error." });
   }
 };
+
 
 
 async function createRazorpayOrder(amount) {

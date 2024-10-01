@@ -64,7 +64,7 @@
                   <th>Date</th>
                   <th>Product Name</th>
                   <th>Quantity</th>
-                  <th>Billing Name</th>
+                  <!-- <th>Billing Name</th> -->
                   <th>Total Price</th>
                   <th>Discount Price</th>
                   <th>Payment Method</th>
@@ -78,7 +78,7 @@
                       <td><%= new Date(sale.orderDate).toLocaleDateString() %></td>
                       <td><%= sale.product.productname %></td>
                       <td><%= sale.products.productquantity %></td>
-                      <td><%= sale.user.name %></td>
+                      
                       <td>₹<%= sale.totalAmount.toFixed(2) %></td>
                       <td>₹<%= sale.discountAmount ? sale.discountAmount.toFixed(2) : '0.00' %></td>
                       <td><%= sale.selectedPaymentMethod %></td>

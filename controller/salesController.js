@@ -25,13 +25,13 @@ const loadSalesReport = async (req, res) => {
         let SalesReport = await order.aggregate([
             {
                 $lookup: {
-                    from: "users",
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user'
+                  from: "addresses", 
+                  localField: 'addressId',
+                  foreignField: '_id',
+                  as: 'address' 
                 }
-            },
-            { $unwind: '$user' },
+              },
+              { $unwind: '$address' },
             { $unwind: '$products' },
             {
                 $lookup: {
@@ -59,7 +59,7 @@ const loadSalesReport = async (req, res) => {
         ]);
 
        
-        
+     
         let totalSale = SalesReport.length;
         res.render('admin/SalesReport', { SalesReport, totalSale });
     } catch (error) {
@@ -91,13 +91,13 @@ const downloadPdf = async (req, res) => {
         let SalesReport = await order.aggregate([
             {
                 $lookup: {
-                    from: "users",
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user'
+                  from: "addresses", 
+                  localField: 'addressId',
+                  foreignField: '_id',
+                  as: 'address' 
                 }
-            },
-            { $unwind: '$user' },
+              },
+              { $unwind: '$address' },
             { $unwind: '$products' },
             {
                 $lookup: {
@@ -159,7 +159,7 @@ const downloadPdf = async (req, res) => {
         
         doc.fillColor('white')
             .text('Date', xOffsets.date, tableTop + 5)
-            .text('Product Name', xOffsets.productName, tableTop + 5)
+            // .text('Product Name', xOffsets.productName, tableTop + 5)
             .text('Quantity', xOffsets.quantity, tableTop + 5)
             .text('Billing Name', xOffsets.billingName, tableTop + 5)
             .text('Total Price', xOffsets.totalPrice, tableTop + 5)
@@ -181,7 +181,7 @@ const downloadPdf = async (req, res) => {
                 .text(new Date(sale.orderDate).toLocaleDateString(), xOffsets.date, currentTop + 5)
                 .text(sale.product.productname || 'N/A', xOffsets.productName, currentTop + 5)
                 .text(sale.products.productquantity || 0, xOffsets.quantity, currentTop + 5)
-                .text(sale.user.name || 'Unknown', xOffsets.billingName, currentTop + 5)
+                // .text(sale.user.name || 'Unknown', xOffsets.billingName, currentTop + 5)
                 .text(`₹${sale.totalAmount ? sale.totalAmount.toFixed(2) : '0.00'}`, xOffsets.totalPrice, currentTop + 5)
                 .text(`₹${sale.discountAmount ? sale.discountAmount.toFixed(2) : '0.00'}`, xOffsets.discountPrice, currentTop + 5)
                 .text(sale.selectedPaymentMethod || 'N/A', xOffsets.paymentMethod, currentTop + 5);
@@ -199,7 +199,7 @@ const downloadPdf = async (req, res) => {
                     .text('Date', xOffsets.date, tableTop + 5)
                     .text('Product Name', xOffsets.productName, tableTop + 5)
                     .text('Quantity', xOffsets.quantity, tableTop + 5)
-                    .text('Billing Name', xOffsets.billingName, tableTop + 5)
+                    // .text('Billing Name', xOffsets.billingName, tableTop + 5)
                     .text('Total Price', xOffsets.totalPrice, tableTop + 5)
                     .text('Discount Price', xOffsets.discountPrice, tableTop + 5)
                     .text('Payment Method', xOffsets.paymentMethod, tableTop + 5);
@@ -239,13 +239,13 @@ const downloadExcel = async (req, res) => {
         let SalesReport = await order.aggregate([
             {
                 $lookup: {
-                    from: "users",
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user'
+                  from: "addresses", 
+                  localField: 'addressId',
+                  foreignField: '_id',
+                  as: 'address' 
                 }
-            },
-            { $unwind: '$user' },
+              },
+              { $unwind: '$address' },
             { $unwind: '$products' },
             {
                 $lookup: {
@@ -281,7 +281,7 @@ const downloadExcel = async (req, res) => {
             { header: 'Date', key: 'date', width: 15 },
             { header: 'Product Name', key: 'productName', width: 30 },
             { header: 'Quantity', key: 'quantity', width: 10 },
-            { header: 'Billing Name', key: 'billingName', width: 25 },
+            // { header: 'Billing Name', key: 'billingName', width: 25 },
             { header: 'Total Price', key: 'totalPrice', width: 15 },
             { header: 'Discount Price', key: 'discountPrice', width: 15 },
             { header: 'Payment Method', key: 'paymentMethod', width: 20 }
@@ -301,7 +301,7 @@ const downloadExcel = async (req, res) => {
                 date: new Date(sale.orderDate).toLocaleDateString(),
                 productName: sale.product.productname || 'N/A',
                 quantity: sale.products.productquantity || 0,
-                billingName: sale.user.name || 'Unknown',
+                // billingName: sale.user.name || 'Unknown',
                 totalPrice: `₹${totalPrice.toFixed(2)}`,
                 discountPrice: `₹${discountPrice.toFixed(2)}`,
                 paymentMethod: sale.selectedPaymentMethod || 'N/A'
@@ -313,7 +313,7 @@ const downloadExcel = async (req, res) => {
             date: 'Total',
             productName: '',
             quantity: '',
-            billingName: '',
+            // billingName: '',
             totalPrice: `₹${totalSalesAmount.toFixed(2)}`,
             discountPrice: '',
             paymentMethod: ''

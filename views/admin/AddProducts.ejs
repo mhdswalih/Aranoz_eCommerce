@@ -107,19 +107,19 @@
                 </div>
                 <div class="form-group">
                   <label for="productPrice">Product Price</label>
-                  <input type="number" class="form-control" id="productPrice" placeholder="Product Price" name="productprice" step="0.01" required>
+                  <input type="number" class="form-control" id="productPrice" placeholder="Product Price" name="productprice" step="0.01" >
                 </div>
                 <div class="form-group">
                   <label for="productQuantity">Product Stock</label>
-                  <input type="number" class="form-control" id="productQuantity" placeholder="Product Stock" name="productquantity" required>
+                  <input type="number" class="form-control" id="productQuantity" placeholder="Product Stock" name="productquantity" >
                 </div>
                 <div class="form-group">
                   <label for="productDescription">Product Description</label>
-                  <textarea class="form-control" id="productDescription" placeholder="Product Description" name="productdescription" required></textarea>
+                  <textarea class="form-control" id="productDescription" placeholder="Product Description" name="productdescription" ></textarea>
                 </div>
                 <div class="form-group">
                   <label for="brand">Brand</label>
-                  <select class="form-control" id="brands" name="brands" required>
+                  <select class="form-control" id="brands" name="brands" >
                     <% brands.forEach(brand => { %>
                       <option value="<%= brand._id %>"><%= brand.name %></option>
                     <% }); %>
@@ -127,7 +127,7 @@
                 </div>
                 <div class="form-group">
                   <label for="Categories">Category</label>
-                  <select class="form-control" id="Categories" name="Categories" required>
+                  <select class="form-control" id="Categories" name="Categories" >
                     <% categories.forEach(category => { %>
                       <option value="<%= category._id %>"><%= category.name %></option>
                     <% }); %>

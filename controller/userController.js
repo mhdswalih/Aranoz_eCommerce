@@ -178,7 +178,10 @@ const verifyOtp = async (req, res) => {
         email: req.session.email,
         phone: req.session.phone,
         password: req.session.password,
+        
       });
+      console.log('this is session otp ',sessionOTP);
+      
       await user.save();
       req.session.otp = null;
       req.session.user = user._id;
@@ -282,7 +285,7 @@ const shope = async (req, res) => {
       search = '',
       sort = '',
       page = 1,
-      limit = 5
+      limit = 6
     } = req.query;
 
     const skip = (page - 1) * limit;
