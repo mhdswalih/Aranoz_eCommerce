@@ -27,7 +27,7 @@ document.getElementById('otp-form').addEventListener('submit', async function (e
             window.location.href = "/login";
         } else {
             const data = await response.json();
-            submitError.innerHTML = data.message;
+            submitError.innerHTML = data.message || "Invalid OTP, please try again.";
         }
     } catch (error) {
         console.error('Error:', error);
@@ -68,7 +68,7 @@ document.getElementById('resend-otp').addEventListener('click', async function (
     const timer = document.getElementById('timer');
     const resendOTPButton = document.getElementById('resend-otp');
   
-    console.log(`Resending OTP to ${email}`);
+   
   
     try {
       const response = await fetch('/resend-otp', {
