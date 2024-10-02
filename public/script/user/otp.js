@@ -22,7 +22,7 @@ document.getElementById('otp-form').addEventListener('submit', async function (e
             },
             body: JSON.stringify({ otp: emailOtp }),
         });
-
+        
         if (response.ok) {
             window.location.href = "/login";
         } else {

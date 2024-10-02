@@ -178,6 +178,7 @@ const verifyOtp = async (req, res) => {
         email: req.session.email,
         phone: req.session.phone,
         password: req.session.password,
+      
         
       });
       console.log('this is session otp ',sessionOTP);
