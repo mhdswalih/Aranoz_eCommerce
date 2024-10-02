@@ -75,7 +75,7 @@ async function incrementCount(productId) {
       const quantityInput = document.getElementById(`quantity-${productId}`);
       quantityInput.value = result.newQuantity; 
        
-      showSnackbar(result.message||'Increment successful');
+      showSnackbar(response.message||'Increment successful');
       setTimeout(() => location.reload(), 3500);
     } else {
       showSnackbar('Failed to increment');

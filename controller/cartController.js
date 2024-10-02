@@ -151,14 +151,13 @@ const increaseStock = async (req, res) => {
      
     
     if (itemIndex > -1) {
-      if (userCart.products[itemIndex].productquantity < 5 && userCart.products[itemIndex].productquantity < userCart.products[itemIndex].productId.productquantity) {
-        
+      if (userCart.products[itemIndex].productquantity < 5 && userCart.products[itemIndex].productquantity < userCart.products[itemIndex].productId.productquantity) {        
         userCart.products[itemIndex].productquantity++;
       
         await userCart.save();
         return res.status(200).json({ success: true, newQuantity: userCart.products[itemIndex].productquantity });
       } else {
-        return res.status(400).json({ success: false, message: "Quantity limit reached" });
+        return res.status(400).json({ message: "Quantity limit reached" });
       }
       
     } else {
@@ -249,7 +248,7 @@ const wishlist = async (req, res) => {
       };
     });
 
-    res.render('user/wishlist', { user, wishlist: userWishlist });
+    res.render('user/Wishlist', { user, wishlist: userWishlist });
   } catch (error) {
     console.error("Error in wishlist:", error);
     res.status(500).json({ success: false, message: "Internal server error" });

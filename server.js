@@ -35,9 +35,9 @@ app.use((req, res, next) => {
 });
 
 // 404 Error handler (for routes that are not found)
-app.use((req, res, next) => {
-    res.status(404).render('404', { url: req.originalUrl });
-});
+// app.use((req, res, next) => {
+//     res.status(404).render('404', { url: req.originalUrl });
+// });
 
 // Session Secret Handling
 if (!process.env.SESSION_SECRET) {
@@ -60,6 +60,12 @@ app.use(passport.session());
 // View Engine Setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// app.use((err, req, res, next) => {
+//     console.error(err.stack);
+//     res.status(500).render('error', { message: "Something went wrong!" });
+//   });
+  
 
 // Route Setup
 const userRoute = require('./router/userRoute');
