@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Page Not Found</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #343434; /* Dark background */
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.error-container {
+    text-align: center;
+}
+
+h1 {
+    font-size: 72px;
+}
+
+p {
+    font-size: 24px;
+}
+
+.error-gif {
+    width: 200px; /* Adjust size as needed */
+    height: auto;
+    margin: 20px 0;
+}
+
+.return-home {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #F04F54; /* Red button */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.return-home:hover {
+    background-color: #43CB9D; /* Green on hover */
+}
+
+</style>
+<body>
+    <main>
+        <div class="error-container">
+            <h1>404..!</h1>
+            <p>Page Not Found</p>
+            <img src="path/to/your/error.gif" alt="Error GIF" class="error-gif">
+            <p>Sorry about that!</p>
+            <a href="/" class="return-home">Return Home</a>
+        </div>
+    </main>
+</body>
+</html>
