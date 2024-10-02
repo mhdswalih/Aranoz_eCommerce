@@ -219,7 +219,7 @@ const wishlist = async (req, res) => {
     });
 
     if (!userWishlist) {
-      return res.render('user/wishlist', { user, wishlist: { products: [] } });
+      return res.render('user/Wishlist', { user, wishlist: { products: [] } });
     }
 
  
