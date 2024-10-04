@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>500 - Internal Server Error</title>
+  <style>
+      /* Universal Styles */
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body, html {
+          height: 100%;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #f4f4f9; 
+          color: #333;
+      }
+
+      main {
+          text-align: center;
+          padding: 20px;
+      }
+
+      h1 {
+          font-size: 4rem;
+          font-weight: bold;
+          color: #FF6B6B; /* Subtle Red for Error */
+          margin-bottom: 10px;
+      }
+
+      p {
+          font-size: 1.2rem;
+          color: #666;
+          margin-bottom: 20px;
+      }
+
+      .error-img {
+          width: 300px;
+          height: auto;
+          margin: 20px auto;
+      }
+
+      .return-home {
+          display: inline-block;
+          padding: 12px 30px;
+          background-color: #FF6B6B; /* Red Button */
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          font-size: 1rem;
+          font-weight: 600;
+          transition: background-color 0.3s ease-in-out, transform 0.3s;
+      }
+
+      .return-home:hover {
+          background-color: #43CB9D; /* Subtle Green on hover */
+          transform: translateY(-2px);
+      }
+
+      /* Media Query for Mobile Responsiveness */
+      @media (max-width: 768px) {
+          h1 {
+              font-size: 3rem;
+          }
+
+          .return-home {
+              padding: 10px 20px;
+          }
+      }
+  </style>
+</head>
+<body>
+  <main>
+      <h1>500..!</h1>
+      <p>Oops! Something went wrong on our end. Please try again later.</p>
+      <a href="/" class="return-home">Return to Home</a>
+  </main>
+</body>
+</html>

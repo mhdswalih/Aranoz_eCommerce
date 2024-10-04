@@ -131,9 +131,9 @@ userRoute.get('/download-invoice/:id',Auth.islogin,orderController.downloadPdfIn
 
 userRoute.post('/initiate-repay',Auth.islogin,orderController.repayOption)
 // userRoute.post('/verify-payment',Auth.islogin,orderController.verifyPayment)
-userRoute.get('*', (req, res) => {
-  res.render('user/404');
-});   
+// userRoute.get('*', (req, res) => {
+//   res.render('user/404');
+// });   
 
 
 module.exports = userRoute;

@@ -29,15 +29,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(nocache());
 app.use(morgan('dev'));
 
-app.use((req, res, next) => {
-    console.log(req.body);
-    next();
-});
-
-// 404 Error handler (for routes that are not found)
 // app.use((req, res, next) => {
-//     res.status(404).render('404', { url: req.originalUrl });
+//     console.log(req.body);
+//     next();
 // });
+
+
 
 // Session Secret Handling
 if (!process.env.SESSION_SECRET) {
@@ -61,11 +58,7 @@ app.use(passport.session());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// app.use((err, req, res, next) => {
-//     console.error(err.stack);
-//     res.status(500).render('error', { message: "Something went wrong!" });
-//   });
-  
+
 
 // Route Setup
 const userRoute = require('./router/userRoute');
@@ -75,6 +68,17 @@ const authRoute = require('./router/Auth');
 app.use('/', userRoute);
 app.use('/admin', adminRouter);
 app.use('/auth', authRoute);
+
+// app.use((err, req, res, next) => {
+//     console.error("Global Error:", err.stack); 
+//     res.status(500).render('user/500', { error: err.message }); 
+// });
+  
+// Catch all other routes (404) and render a 404 page
+app.use((req, res, next) => {
+    res.status(404).render('user/404');
+    next();
+  });
 
 // Start Server
 app.listen(port, () => {

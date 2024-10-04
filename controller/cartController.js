@@ -251,7 +251,7 @@ const wishlist = async (req, res) => {
     res.render('user/Wishlist', { user, wishlist: userWishlist });
   } catch (error) {
     console.error("Error in wishlist:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).render('user/500');
   }
 };
 

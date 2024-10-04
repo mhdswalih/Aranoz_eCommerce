@@ -374,7 +374,7 @@ const shope = async (req, res) => {
     });
   } catch (error) {
     console.error('Error loading products', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).render('user/500');
   }
 };
 
@@ -433,7 +433,7 @@ const singleproduct = async (req, res) => {
     res.render("user/single-product", { singleproduct, user, overallRating, totalReviews, starCount });
   } catch (error) {
     console.error("Error to load single-product", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).render('user/500');
   }
 };
 
