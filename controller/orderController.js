@@ -544,7 +544,7 @@ const trackOrder = async (req, res) => {
       .populate("products.productId")
       .skip(skip)
       .limit(limit)
-      .sort({createAt:-1})
+      .sort({orderDate:-1})
     // Fetch active offers
     const now = new Date();
     const offers = await offerModel.find({
@@ -900,7 +900,8 @@ const returnManagement = async (req, res) => {
   }
 };
 
-//download Invoice
+
+
 const downloadPdfInvoice = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -913,7 +914,7 @@ const downloadPdfInvoice = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    const doc = new PDFDocument({ margin: 30, size: "A3" });
+    const doc = new PDFDocument({ margin: 30, size: "A4" }); 
     let filename = `invoice-${orderId}.pdf`;
 
     res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
@@ -921,11 +922,15 @@ const downloadPdfInvoice = async (req, res) => {
 
     doc.pipe(res);
 
-    // Title
-    doc.fontSize(26).fillColor("black").text("Invoice", { align: "center" });
+    // Company Name
+    doc.fontSize(24).fillColor("#2c3e50").text("Aranoz", { align: "center" });
     doc.moveDown(0.5);
 
-    // Subtitle
+    // Title
+    doc.fontSize(26).fillColor("#2c3e50").text("Invoice", { align: "center" });
+    doc.moveDown(0.5);
+
+    // Subtitle with date
     doc
       .fontSize(14)
       .fillColor("gray")
@@ -934,15 +939,18 @@ const downloadPdfInvoice = async (req, res) => {
       });
     doc.moveDown(2);
 
-    // Customer Info
+    // Customer Info with Address Formatting
     doc
       .fontSize(16)
-      .fillColor("black")
+      .fillColor("#34495e")
       .text(`Customer: ${order.addressId.name}`);
+    
+    // Address on a new line for better clarity
     doc.text(
-      `Address: ${order.addressId.name}, ${order.addressId.addressLine1}, ${order.addressId.city}, ${order.addressId.zipcode}`
+      `Address: ${order.addressId.addressLine1}, ${order.addressId.city}, ${order.addressId.zipcode}`,
+      { align: "left" }
     );
-    doc.moveDown();
+    doc.moveDown(2); // Adding space before the table
 
     // Table Header
     const tableTop = doc.y + 20;
@@ -971,6 +979,7 @@ const downloadPdfInvoice = async (req, res) => {
         columnWidths.totalPrice,
     };
 
+    // Header Background and Text Color
     doc
       .fontSize(10)
       .fillColor("white")
@@ -980,8 +989,10 @@ const downloadPdfInvoice = async (req, res) => {
         xOffsets.discountPrice + columnWidths.discountPrice - 30,
         20
       )
-      .fill("#2c3e50")
+      .fill("#2980b9") // Changed to a vibrant blue
       .stroke();
+
+    // Header Titles
     doc
       .fillColor("white")
       .text("Product Name", xOffsets.productName, tableTop - 15);
@@ -993,10 +1004,13 @@ const downloadPdfInvoice = async (req, res) => {
     let currentTop = tableTop;
     let totalDiscountAmount = 0;
 
-    order.products.forEach((product) => {
+    order.products.forEach((product, index) => {
+      // Page Break Logic
       if (currentTop + 20 > doc.page.height - 50) {
         doc.addPage();
         currentTop = doc.page.margins.top;
+        
+
         doc
           .fontSize(10)
           .fillColor("white")
@@ -1006,8 +1020,9 @@ const downloadPdfInvoice = async (req, res) => {
             xOffsets.discountPrice + columnWidths.discountPrice - 30,
             20
           )
-          .fill("#2c3e50")
+          .fill("#2980b9")
           .stroke();
+
         doc
           .fillColor("white")
           .text("Product Name", xOffsets.productName, currentTop - 15);
@@ -1018,19 +1033,18 @@ const downloadPdfInvoice = async (req, res) => {
         currentTop += 20;
       }
 
-      // Alternate row colors
-      if (order.products.indexOf(product) % 2 === 0) {
-        doc
-          .fillColor("#f8f9fa")
-          .rect(
-            30,
-            currentTop,
-            xOffsets.discountPrice + columnWidths.discountPrice - 30,
-            20
-          )
-          .fill()
-          .stroke();
-      }
+      // Alternate row colors for better readability
+      const rowColor = index % 2 === 0 ? "#ecf0f1" : "#ffffff"; 
+      doc
+        .fillColor(rowColor)
+        .rect(
+          30,
+          currentTop,
+          xOffsets.discountPrice + columnWidths.discountPrice - 30,
+          20
+        )
+        .fill()
+        .stroke();
 
       // Calculate prices
       const unitPrice = product.productId.productprice;
@@ -1046,46 +1060,32 @@ const downloadPdfInvoice = async (req, res) => {
       const discountAmount = discountPrice > 0 ? totalPrice - discountPrice : 0;
       totalDiscountAmount += discountAmount;
 
-      // Data rows
+      // Data Rows
       doc
         .fillColor("black")
-        .text(
-          product.productId.productname,
-          xOffsets.productName,
-          currentTop + 5
-        );
+        .text(product.productId.productname, xOffsets.productName, currentTop + 5);
       doc.text(quantity, xOffsets.quantity, currentTop + 5);
-      doc.text(`₹${unitPrice.toFixed(2)}`, xOffsets.unitPrice, currentTop + 5);
-      doc.text(
-        `₹${totalPrice.toFixed(2)}`,
-        xOffsets.totalPrice,
-        currentTop + 5
-      );
-      doc.text(
-        discountPrice > 0 ? `₹${discountPrice.toFixed(2)}` : "N/A",
-        xOffsets.discountPrice,
-        currentTop + 5
-      );
+      doc.text(`RS.${unitPrice.toFixed(2)}`, xOffsets.unitPrice, currentTop + 5);
+      doc.text(`RS.${totalPrice.toFixed(2)}`, xOffsets.totalPrice, currentTop + 5);
+      doc.text(discountPrice > 0 ? `RS.${discountPrice.toFixed(2)}` : "N/A", xOffsets.discountPrice, currentTop + 5);
 
       currentTop += 20;
     });
 
-    // Final totals
-    doc.moveDown(2);
+    doc.moveDown(2); // Adding space before totals
     doc
       .fontSize(16)
-      .fillColor("black")
-      .text(`Grand Total: ₹${order.totalAmount.toFixed(2)}`, { align: "left" });
-    doc.text(`Total Discount: ₹${totalDiscountAmount.toFixed(2)}`, {
-      align: "left",
-    });
-
+      .fillColor("#2c3e50")
+      .text(`Total:RS.${order.totalAmount.toFixed(2)}`);
+    // doc.text(`Total Discount: RS.${totalDiscountAmount.toFixed(2)}`, { align: "left" });
     doc.end();
   } catch (error) {
     console.error("Error generating invoice:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
 //repayOption
 const repayOption = async (req, res) => {
   const { itemId, productId, orderId, amount } = req.body;

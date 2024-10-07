@@ -5,7 +5,9 @@ const Category = require("../model/categoryModel");
 const Brand = require("../model/brandModel");
 const upload = require("../config/uploads");
 const Order = require('../model/orderModel')
-const Address = require('../model/AddressModel')
+const Address = require('../model/AddressModel');
+
+
 
 // Load Login Page
 const loadLogin = async (req, res) => {
@@ -807,7 +809,7 @@ const OrderController = async (req, res) => {
       .populate('userId')
       .skip(skip)
       .limit(limit)
-      .sort({orderAt:-1})
+      .sort({orderDate:-1})
 
     const count = await Order.countDocuments(); 
     const totalPages = Math.ceil(count / limit); 
@@ -827,6 +829,15 @@ const OrderStatus = async (req, res) => {
     const { orderId, productId } = req.params;
     const { orderStatus } = req.body;
 
+      
+       const validStatusTransitions = {
+        Pending: ["Shipped", "Cancelled"],
+        Shipped: ["Delivered", "Cancelled"],
+        Delivered: [],  
+        Cancelled: [],  
+       
+      };
+
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
@@ -835,15 +846,28 @@ const OrderStatus = async (req, res) => {
     if (order.products.every(product => product.orderStatus === "Cancelled")) {
       return res.status(400).json({ message: 'Order is already cancelled and cannot be updated' });
     }
+    if (order.products.every(product => product.orderStatus === 'Delivered')) {
+      return res.status(400).json({ message: 'Order is already Delivered and cannot be updated' });
+    }
 
     if (productId) {
       const product = order.products.find(p => p.productId.toString() === productId);
       if (!product) {
         return res.status(404).json({ message: 'Product not found in order' });
       }
+
+      // Ensure the status can't decrement
+      if (!validStatusTransitions[product.orderStatus].includes(orderStatus)) {
+        return res.status(400).json({ message: `Invalid status transition from ${product.orderStatus} to ${orderStatus}` });
+      }
+
       product.orderStatus = orderStatus;
     } else {
       order.products.forEach(product => {
+        // Ensure the status can't decrement
+        if (!validStatusTransitions[product.orderStatus].includes(orderStatus)) {
+          return res.status(400).json({ message: `Invalid status transition for product ${product.productId}` });
+        }
         product.orderStatus = orderStatus;
       });
     }
@@ -855,6 +879,7 @@ const OrderStatus = async (req, res) => {
     res.status(500).json({ message: 'Something went wrong', error });
   }
 };
+
 
 
 

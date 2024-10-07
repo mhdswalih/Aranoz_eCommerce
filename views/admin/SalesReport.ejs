@@ -61,6 +61,7 @@
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>Order ID</th>
                   <th>Date</th>
                   <th>Product Name</th>
                   <th>Quantity</th>
@@ -75,6 +76,7 @@
                   <% SalesReport.forEach((sale, index) => { %>
                     <tr>
                       <td><%= index + 1 %></td>
+                      <td><%=sale._id%></td>
                       <td><%= new Date(sale.orderDate).toLocaleDateString() %></td>
                       <td><%= sale.product.productname %></td>
                       <td><%= sale.products.productquantity %></td>
