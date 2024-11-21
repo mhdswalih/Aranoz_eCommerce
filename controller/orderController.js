@@ -32,6 +32,9 @@ const checkout = async (req, res) => {
         model: "Category",
       },
     });
+    if(!cart){
+      res.redirect('/shope')
+    }
     const addr = await Address.find({ userId: req.session.user });
     const cop = await coupen.find();
 
@@ -90,13 +93,10 @@ const checkout = async (req, res) => {
         total,
       });
     } else {
-      res.redirect("/cart");
+      res.redirect("/shope");
     }
   } catch (error) {
     console.error("Error in checkout:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to load checkout page" });
   }
 };
 

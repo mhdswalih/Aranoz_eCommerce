@@ -1,16 +1,33 @@
 
 const Copon = require("../model/couponModel");
 
-//load copon
 const loadCopon = async (req, res) => {
-    try {
-      const copons = await Copon.find(); 
-      res.render("admin/Coupon", { copons }); 
-    } catch (error) {
-      console.log("err", error);
-      res.status(500).send("Error loading coupons");
+  try {
+    let page = parseInt(req.query.page, 10);
+    if (isNaN(page) || page < 1) page = 1; 
+
+    const limit = 5; 
+    const skip = (page - 1) * limit;
+
+   
+    const copons = await Copon.find().skip(skip).limit(limit);
+    const totalCoupons = await Copon.countDocuments();
+    const totalPages = Math.ceil(totalCoupons / limit);
+
+    
+    if (page > totalPages && totalCoupons > 0) {
+      return res.redirect(`?page=${totalPages}`);
     }
-  };
+
+    // Render view
+    res.render("admin/Coupon", { copons, currentPage: page, totalPages });
+  } catch (error) {
+    console.error("Error loading coupons at page:", req.query.page, "Error:", error);
+    res.status(500).send("Error loading coupons");
+  }
+};
+
+
   
 //addCopon
 const addCoupon = async (req, res) => {

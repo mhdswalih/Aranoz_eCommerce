@@ -6,14 +6,15 @@ const order = require('../model/orderModel');
 
 const loadSalesReport = async (req, res) => {
     try {
-        const { startDate, endDate } = req.query;
-
+        const { startDate, endDate, page = 1 } = req.query;
         let query = { 'products.orderStatus': 'Delivered' };
+        const limit = 5;
+        const skip = (page - 1) * limit;
 
+        // Filter by date range if provided
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
-           
             end.setHours(23, 59, 59, 999);
 
             query.orderDate = {
@@ -22,16 +23,21 @@ const loadSalesReport = async (req, res) => {
             };
         }
 
+        // Get total number of sales matching the filter
+        const totalSales = await order.countDocuments(query);
+        const totalPages = Math.ceil(totalSales / limit);
+
+        // Aggregate sales report data with pagination
         let SalesReport = await order.aggregate([
             {
                 $lookup: {
-                  from: "addresses", 
-                  localField: 'addressId',
-                  foreignField: '_id',
-                  as: 'address' 
+                    from: "addresses",
+                    localField: 'addressId',
+                    foreignField: '_id',
+                    as: 'address'
                 }
-              },
-              { $unwind: '$address' },
+            },
+            { $unwind: '$address' },
             { $unwind: '$products' },
             {
                 $lookup: {
@@ -44,13 +50,14 @@ const loadSalesReport = async (req, res) => {
             { $unwind: '$product' },
             { $match: query },
             { $sort: { 'orderDate': -1 } },
+            { $skip: skip },
+            { $limit: limit },
             {
                 $project: {
                     _id: 1,
                     orderDate: 1,
                     'product.productname': 1,
                     'products.productquantity': 1,
-                    'user.name': 1,
                     totalAmount: 1,
                     discountAmount: 1,
                     selectedPaymentMethod: 1  
@@ -58,17 +65,20 @@ const loadSalesReport = async (req, res) => {
             }
         ]);
 
-       
-     
-        let totalSale = SalesReport.length;
-        res.render('admin/SalesReport', { SalesReport, totalSale });
+        // Render the sales report with pagination and filters
+        res.render('admin/SalesReport', {
+            SalesReport,
+            totalPages,
+            currentPage: Number(page),
+            startDate,
+            endDate
+        });
     } catch (error) {
         console.error("Error loading sales report:", error);
         res.status(500).send('Server error');
     }
 };
 
-  
   
 // downloadPdf
 const downloadPdf = async (req, res) => {
@@ -161,7 +171,7 @@ const downloadPdf = async (req, res) => {
             .text('Date', xOffsets.date, tableTop + 5)
             // .text('Product Name', xOffsets.productName, tableTop + 5)
             .text('Quantity', xOffsets.quantity, tableTop + 5)
-            .text('Billing Name', xOffsets.billingName, tableTop + 5)
+            // .text('Billing Name', xOffsets.billingName, tableTop + 5)
             .text('Total Price', xOffsets.totalPrice, tableTop + 5)
             .text('Discount Price', xOffsets.discountPrice, tableTop + 5)
             .text('Payment Method', xOffsets.paymentMethod, tableTop + 5);
@@ -176,7 +186,6 @@ const downloadPdf = async (req, res) => {
             } else {
                 doc.fillColor('white').rect(30, currentTop, xOffsets.paymentMethod + columnWidths.paymentMethod - 30, 20).fill().stroke();
             }
-
             doc.fillColor('black')
                 .text(new Date(sale.orderDate).toLocaleDateString(), xOffsets.date, currentTop + 5)
                 .text(sale.product.productname || 'N/A', xOffsets.productName, currentTop + 5)
@@ -335,35 +344,42 @@ const downloadExcel = async (req, res) => {
 
 const loadWallet = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5; 
+        const startIndex = (page - 1) * limit; 
+        const endIndex = page * limit;
+
+        // Fetch the wallet for the logged-in user
         const userId = req.session.user;
         const wallet = await Wallet.findOne({ userId });
 
+    
         if (!wallet) {
-            return res.status(404).json({ message: 'Wallet not found' });
+            return res.render('user/Wallet', { 
+                user: req.session.user,
+                wallet: { balance: 0 },
+                transactions: [], 
+                currentPage: page,
+                totalPages: 1, 
+            });
         }
 
-        // Pagination variables
-        const page = parseInt(req.query.page) || 1; 
-        const limit = 5; 
-        const startIndex = (page - 1) * limit; 
-        const endIndex = page * limit; 
-
-       
-        const transactions = wallet.history.slice(startIndex, endIndex);
-        
-        // Calculate total pages
+        // Wallet exists, handle pagination
         const totalPages = Math.ceil(wallet.history.length / limit);
-        
+        const transactions = wallet.history.slice(startIndex, endIndex);
+
+        // Render the wallet page with user's wallet data
         res.render('user/Wallet', {
             wallet: wallet,
+            balance: wallet.balance,  // Show the actual balance from the wallet
             user: req.session.user,
-            transactions: transactions, // Pass the sliced transactions
+            transactions: transactions, 
             currentPage: page,
             totalPages: totalPages,
         });
     } catch (error) {
         console.log(error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).send("Something went wrong!");
     }
 };
 

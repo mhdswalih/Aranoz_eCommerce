@@ -65,7 +65,7 @@
       </button>
       <ul class="navbar-nav w-100">
         <li class="nav-item w-100">
-          <form
+          <!-- <form
             class="nav-link mt-2 mt-md-0 d-none d-lg-flex search"
             action=""
             method="get"
@@ -77,7 +77,7 @@
               placeholder="Search Copon"
             />
             <button type="submit" class="search-btn">Search</button>
-          </form>
+          </form> -->
         </li>
       </ul>
       <ul class="navbar-nav navbar-nav-right">
@@ -94,83 +94,97 @@
       </ul>
     </div>
   </nav>
-  <!-- Main Content -->
-  <div class="main-panel">
-    <div class="content-wrapper">
-      <div class="col-lg-12 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">Coupon Table</h4>
-            <div class="table-responsive">
-              <table class="table table-dark">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Coupon Code</th>
-                    <th>Discount</th>
-                    <th>Min Price</th>
-                    <th>Max Redeemable</th>
-                    <th>Valid Till</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% if (copons.length > 0) { %>
-                    <% copons.forEach((copon, index) => { %>
-                      <tr>
-                        <td><%= index + 1 %></td>
-                        <td><%= copon.couponCode %></td>
-                        <td><%= copon.percentage %>%</td>
-                        <td><%= copon.minPrice %></td>
-                        <td><%= copon.maxRedeemAmount %></td>
-                        <td><%= new Date(copon.expiryDate).toLocaleDateString() %></td>
-                        <td>
-                          <div class="btn-group">
+ <!-- Main Content -->
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Coupon Table</h4>
+          <div class="table-responsive">
+            <table class="table table-dark">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Coupon Code</th>
+                  <th>Discount</th>
+                  <th>Min Price</th>
+                  <th>Max Redeemable</th>
+                  <th>Valid Till</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (copons.length > 0) { %>
+                  <% copons.forEach((copon, index) => { %>
+                    <tr>
+                      <td><%= (currentPage - 1) * 10 + index + 1 %></td>
+                      <td><%= copon.couponCode %></td>
+                      <td><%= copon.percentage %>%</td>
+                      <td><%= copon.minPrice %></td>
+                      <td><%= copon.maxRedeemAmount %></td>
+                      <td><%= new Date(copon.expiryDate).toLocaleDateString() %></td>
+                      <td>
+                        <div class="btn-group">
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary dropdown-toggle"
+                            data-toggle="dropdown"
+                          >
+                            ...
+                          </button>
+                          <div class="dropdown-menu">
                             <button
                               type="button"
-                              class="btn btn-outline-secondary dropdown-toggle"
-                              data-toggle="dropdown"
+                              data-coupon-id="<%= copon._id %>"
+                              class="btn btn-info btn-fw btn dropdown-item dlt-btn"
                             >
-                              ...
+                              Delete
                             </button>
-                            <div class="dropdown-menu">
-                             
-                                <button
-                                type="button"
-                                data-coupon-id="<%= copon._id %>"
-                                class="btn btn-info btn-fw btn dropdown-item dlt-btn"
+                            <a
+                              href="/admin/edit-coupon/<%= copon._id %>"
+                              class="btn btn-success btn-fw btn dropdown-item"
+                              data-toggle="modal"
+                              data-target="#editCouponModal"
+                              onclick="openEditModal('<%= JSON.stringify(copon) %>')"
                             >
-                                Delete
-                            </button>
-                              
-                        
-                              <a
-                                type="button"
-                                href="/admin/edit-coupon/<%= copon._id %>"
-                                class="btn btn-success btn-fw btn dropdown-item" data-toggle="modal"
-                                data-target="#editCouponModal"  onclick="openEditModal('<%= JSON.stringify(copon) %>')">Edit</a
-                              >
-                            </div>
+                              Edit
+                            </a>
                           </div>
-                        </td>
-                      </tr>
-                    <% }); %>
-                  <% } else { %>
-                    <tr>
-                      <td colspan="8" class="text-center">No Coupons found</td>
+                        </div>
+                      </td>
                     </tr>
-                  <% } %>
-                </tbody>
-              </table>
-            </div>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="7" class="text-center">No Coupons found</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <% if (totalPages > 1) { %>
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <li class="page-item <%= parseInt(currentPage) === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                  </li>
+                <% } %>
+              </ul>
+            </nav>
+          <% } %>
         </div>
       </div>
     </div>
   </div>
-  
+</div>
+
 
 <div
+   
   class="modal fade"
   id="addCouponModal"
   tabindex="-1"
@@ -371,6 +385,33 @@
   </div>
 </div>
 
+          
+
+<!-- Optional CSS for Pagination Styling -->
+<style>
+.pagination-list {
+  display: flex;
+  list-style-type: none;
+  padding: 0;
+}
+
+.page-item {
+  margin: 0 5px;
+}
+
+.page-item .page-link {
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.page-item.active .page-link {
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #007bff;
+  border-radius: 5px;
+}
+</style>
 
 <script>
  document.getElementById('addCouponForm').addEventListener('submit', async function (e) {
@@ -417,7 +458,7 @@
 
     if (response.ok) {
       err.innerHTML = ""; 
-      window.location.href = "/admin/Coupon";
+      window.location.href = "/admin/Copon";
     } else {
       const data = await response.json();
       err.innerHTML = data.message || "An error occurred.";

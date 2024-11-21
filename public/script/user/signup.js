@@ -5,6 +5,7 @@ document.getElementById('signup').addEventListener('submit',async function(event
     const password = document.getElementById('password').value.trim();
     const confirmPassword = document.getElementById('confirmPassword').value.trim()
     const name = document.getElementById('name').value.trim();
+    const ref = document.getElementById('ref').value.trim()
     const phone = document.getElementById('phone').value.trim();
     const submitError = document.getElementById('submitError');
     const loader = document.getElementById("loader");
@@ -20,8 +21,9 @@ document.getElementById('signup').addEventListener('submit',async function(event
     if(password!==confirmPassword){
         return submitError.innerHTML = "Password do not match"
       }
-  
-
+    // if(!ref){
+    //     return submitError.innerHTML = 'Invalid Referal Code'
+    // }
     if(!nameRegex.test(name)){
         return submitError.innerHTML = 'Invalid name'       
     }else if(!passwordRegex.test(password)){
@@ -31,9 +33,9 @@ document.getElementById('signup').addEventListener('submit',async function(event
     }else if (!phoneRegex.test(phone)){
         return submitError.innerHTML = 'Invalid phone'
     }else{
-        submitError.innerHTML ="";
-        loader.style.display = 'flex';
-        otpBtn.style.display = 'none'
+        // submitError.innerHTML ="";
+        // loader.style.display = 'flex';
+        // otpBtn.style.display = 'none'
     } 
         const response = await fetch ('/signup',{
             method : "POST",
@@ -45,6 +47,7 @@ document.getElementById('signup').addEventListener('submit',async function(event
                 email:email,
                 password:password,
                 phone:phone,
+                ref:ref
             })
         })
         if(response.ok){

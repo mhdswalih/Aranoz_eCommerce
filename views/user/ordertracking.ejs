@@ -119,7 +119,9 @@
                           </p>
                           
                         <p>Status: <strong><%= product.orderStatus %></strong></p>
+                        <%if(product.orderStatus !== 'Cancelled'){%>
                         <p>PaymentStatus: <strong><%= orderItem.paymentStatus %></strong></p>
+                        <%}%>
                     </div>
                     
                     <div class="col-md-3 text-end">
@@ -159,7 +161,7 @@
                                 </button>
                                  
                             <% } %>
-                            <%if(orderItem.paymentStatus === 'Pending'){%>
+                            <%if(orderItem.paymentStatus === 'Pending'&&product.orderStatus !== 'Cancelled'){%>
                                 <button type="button" class="genric-btn danger-border small repay-order-btn"
                                 data-item-id="<%= product._id %>"
                                 data-product-id="<%= product.productId._id %>"

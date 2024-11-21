@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ref } = require("pdfkit");
 const userSchema = new mongoose.Schema({
   googleId: {
     type: String,
@@ -21,6 +22,10 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
   phone: {
     type: String,
+  },
+  ref : {
+    type : String,
+    unique: true
   },
   isBlocked: { 
     type: Boolean,

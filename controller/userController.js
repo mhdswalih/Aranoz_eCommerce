@@ -9,10 +9,12 @@ const Brand = require("../model/brandModel");
 const Address = require("../model/AddressModel");
 const mongoose=require('mongoose')
 const crypto = require('crypto');
+const wallet = require('../model/walletModel');
 const { token } = require("morgan");
 const Order = require("../model/orderModel");
-const Offer = require('../model/offerModel')
-const { error } = require("console");
+const Offer = require('../model/offerModel');
+const Wallet = require("../model/walletModel");
+
 
 require("dotenv").config();
 
@@ -136,13 +138,36 @@ const loadHome = async (req, res) => {
   }
 };
 
+//refral Gen
+function generateReferralCode(length = 8) {
+  return crypto.randomBytes(length).toString('hex').slice(0, length).toUpperCase();
+}
+
 const insertUser = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone ,ref } = req.body;
     const userExist = await User.findOne({ email });
 
     if (userExist) {
       return res.status(400).json({ message: "User already exists" });
+    }
+   
+    
+    if (ref) {
+      const ExistRef = await User.findOne({ ref });
+      console.log('exist ref',ExistRef);
+      
+      if (ExistRef) {
+      await Wallet.findByIdAndUpdate(
+          ExistRef._id,
+          { $inc: { balance: 50 } }, 
+          { new: true }
+        );
+       
+        
+      } else {
+        return res.status(400).json({ message: "Invalid referral code" });
+      }
     }
 
     const otp = generateOTP();
@@ -151,6 +176,7 @@ const insertUser = async (req, res) => {
     req.session.name = name;
     req.session.email = email;
     req.session.phone = phone;
+    req.session.Referal = ref;
     req.session.password = await securePassword(password);
 
     await sendOtpToMail(email, otp);
@@ -171,6 +197,9 @@ const verifyOtp = async (req, res) => {
     const { otp } = req.body;
     const sessionOTPTime = req.session.otp_expire;
     const sessionOTP = req.session.otp;
+    const Referal = generateReferralCode();
+    const referralCode = req.session.Referal;
+    
     const currentTime = Date.now();
     if (otp == sessionOTP && sessionOTPTime > currentTime) {
       const user = new User({
@@ -178,12 +207,30 @@ const verifyOtp = async (req, res) => {
         email: req.session.email,
         phone: req.session.phone,
         password: req.session.password,
-      
-        
-      });
-      console.log('this is session otp ',sessionOTP);
-      
+        ref : Referal
+      });      
       await user.save();
+      const wallet = new Wallet({
+        userId : user._id
+        
+      })
+      
+       await wallet.save()
+
+       if (referralCode) {
+        const referrer = await User.findOne({ ref: referralCode });
+        if (referrer) {
+          const referrerWallet = await Wallet.findOne({ userId: referrer._id });
+          if (referrerWallet) {
+            referrerWallet.balance += 100; 
+            await referrerWallet.save();
+          }
+
+          wallet.balance += 50; 
+          await wallet.save();
+        }
+      }
+
       req.session.otp = null;
       req.session.user = user._id;
       res

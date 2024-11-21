@@ -10,27 +10,40 @@ const Offer = require("../model/offerModel");
 
 const loadOffer = async (req, res) => {
     try {
-        
-        const offers = await Offer.find().populate('brands').populate('category').populate('products');
-
-       
-        const brands = await Brand.find();
-        const categories = await Category.find();
-        const products = await Product.find();
-       
+      const page = parseInt(req.query.page, 10) || 1; 
+      const limit = 1;
+      const skip = (page - 1) * limit; 
+  
       
-        res.render('admin/offer', {
-            offers,
-            brands,
-            categories,
-            products,
-        });
+      const offers = await Offer.find()
+        .populate('brands')
+        .populate('category')
+        .populate('products')
+        .skip(skip)
+        .limit(limit);
+  
+      const totalOffers = await Offer.countDocuments(); 
+      const totalPages = Math.ceil(totalOffers / limit); 
+  
+      // Fetch all brands, categories, and products (not paginated)
+      const brands = await Brand.find();
+      const categories = await Category.find();
+      const products = await Product.find();
+  
+      res.render('admin/offer', {
+        offers,
+        brands,
+        categories,
+        products,
+        currentPage: page,
+        totalPages,
+      });
     } catch (error) {
-        console.error('Error loading offer page:', error.message); 
-        res.status(500).send('Internal Server Error');
+      console.error('Error loading offer page:', error.message);
+      res.status(500).send('Internal Server Error');
     }
-};
-
+  };
+  
 const addOffer = async (req, res) => {
     try {
         const {
